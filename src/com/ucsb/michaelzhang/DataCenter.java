@@ -5,13 +5,14 @@ import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.RemoteException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * Created by michaelzhang on 2/22/17.
  */
-public class DataCenter{
+public class DataCenter implements Communication{
 
     int currentTerm;
     String voteFor;
@@ -34,6 +35,56 @@ public class DataCenter{
         currentRole = Role.Follower;
 
     }
+
+    // Client Communication
+    public boolean buy(int numOfTicket) throws RemoteException {return false;}
+
+    public void show() throws RemoteException{
+
+    }
+    //First line shows the state of the state machine for the application.
+    //Following lines show committed log of the datacenter connected to.
+
+
+    public void change() throws RemoteException{
+
+    }
+    //Configuration change command. Parameter list will be modified later.
+
+
+    //Inter-DataCenter Communication
+    public void sendRequestVote(String candidateId,
+                         int term,
+                         int lastLogIndex,
+                         int lastLogTerm) throws RemoteException{
+
+    }
+
+    public void sendVote(int term,
+                  boolean voteGranted) throws RemoteException {
+
+    }
+
+    public void sendAppendEntries(int term,
+                           String leadId,
+                           int prevLogIndex,
+                           int prevLogTerm,
+                           LogEntry[] entries, //log entries to store, empty for heartbeat
+                           int commitIndex) throws RemoteException {
+
+    }
+
+    //Followers' Reply to AppendEntries
+    public void sendACK(int term,
+                 boolean success) throws RemoteException{
+
+    }
+
+
+
+
+
+
 
     public void updateTerm(int term) {
         currentTerm = term;

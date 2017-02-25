@@ -21,7 +21,11 @@ public class Client {
         //Following lines show committed log of the datacenter connected to.
     }
 
-    public static void main(String[] args) {
+    public void change() {
+        //Configuration change command. Parameter list will be modified later.
+    }
 
+    public static void main(String[] args) {
+        //Parse users' command and call buy() and show();
     }
 }

@@ -1,0 +1,5 @@
+grant codeBase "file:./out/production/Distributed-Ticket-Selling-System-Raft/com/ucsb/michaelzhang/-" {
+
+
+    permission java.security.AllPermission;
+};

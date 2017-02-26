@@ -24,7 +24,8 @@ public interface Communication extends Remote {
     void sendRequestVote(String candidateId,
                          int term,
                          int lastLogIndex,
-                         int lastLogTerm) throws RemoteException;
+                         int lastLogTerm,
+                         int myPort) throws RemoteException;
 
     void sendVote(int term,
                   boolean voteGranted) throws RemoteException;
@@ -33,8 +34,9 @@ public interface Communication extends Remote {
                            String leadId,
                            int prevLogIndex,
                            int prevLogTerm,
-                           LogEntry[] entries, //log entries to store, empty for heartbeat
-                           int commitIndex) throws RemoteException;
+                           LogEntry entries, //log entries to store, empty for heartbeat
+                           int commitIndex,
+                           int myPort) throws RemoteException;
 
     //Followers' Reply to AppendEntries
     void sendACK(int term,

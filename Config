@@ -1,0 +1,8 @@
+TotalNumOfDataCenter=3
+TotalNumOfClient=2
+GlobalTicketNumber=5
+
+ClientC0_TICKET=3
+ClientC1_TICKET=4
+
+D1_PORT=1099

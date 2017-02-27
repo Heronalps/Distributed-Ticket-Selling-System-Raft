@@ -16,10 +16,10 @@ import static com.ucsb.michaelzhang.Configuration.readConfig;
 /**
  * Created by michaelzhang on 2/22/17.
  */
-public class DataCenter extends UnicastRemoteObject implements Communication{
+public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     static final int HEARTBEAT_INTERVAL = 3000;
-    static final int ELECTION_INTERVAL = 6000;
+    static final int ELECTION_INTERVAL = 10 * 60 * 1000;
     int currentTerm;
     String voteFor;
     ArrayList<LogEntry> logEntries; //logEntries is 1-based, instead of zero-based
@@ -56,8 +56,11 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
 
     }
 
-    // Client Communication
-    public boolean buy(int numOfTicket) throws RemoteException {return false;}
+    // Client DC Communication
+    public void request(int numOfTicket, int requestId) throws RemoteException {
+
+        //call responseToRequest()
+    }
 
 
     //First line shows the state of the state machine for the application.
@@ -81,6 +84,7 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
                                 int lastLogIndex,
                                 int lastLogTerm,
                                 int myPort) throws RemoteException{
+
         System.out.println("Received RequestVote from " + candidateId);
         //sendVote()
         if (term < currentTerm) {
@@ -133,18 +137,23 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
                                   int commitIndex,
                                   int myPort) throws RemoteException {
 
-        //Reset the Timer whenever an AppendEntries received
-        resetTimer();
-        System.out.println("Reset Timer!");
+        if (term > currentTerm && (this.currentRole == Role.Candidate || this.currentRole == Role.Leader)) {
+            updateTerm(term);
+            becomeFollower();
+            reply(true, myPort, leadId);
+        } else if (term == currentTerm) {
 
-        //sendACK()
-        //if (entries == null)... HeartBeat
-        //else ... Request
+            //Reset the Timer whenever an AppendEntries received
+            resetTimer();
 
+            //sendACK()
+            //if (entries == null)... HeartBeat
+            //else ... Request
+        }
     }
 
     //Followers' Reply to AppendEntries
-    public void sendACK(int term,
+    public void sendReply(int term,
                         boolean success) throws RemoteException{
 
     }
@@ -152,10 +161,26 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
 
 
 
+
+
+    private void reply(boolean isSuccess, int myPort, String leaderId){
+        try {
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", myPort);
+            DC_Comm comm = (DC_Comm) registry.lookup(leaderId);
+            if (comm != null) {
+                comm.sendReply(currentTerm, isSuccess);
+            }
+            System.out.println("Reply with " + isSuccess + " ACK...");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
     private void vote(boolean isVote, int myPort, String candidateId){
         try {
             Registry registry = LocateRegistry.getRegistry("127.0.0.1", myPort);
-            Communication comm = (Communication) registry.lookup(candidateId);
+            DC_Comm comm = (DC_Comm) registry.lookup(candidateId);
             if (comm != null) {
                 comm.sendVote(currentTerm, isVote);
             }
@@ -188,6 +213,7 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
         };
 
         timer.schedule(timerTask, ELECTION_INTERVAL);
+        System.out.println(ELECTION_INTERVAL + " milliseconds Timer is reset ...");
     }
 
     private void resetTimer(){
@@ -195,11 +221,11 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
         timer.cancel();
         timer.purge();
         startTimer();
-        System.out.println("Timer is reset ...");
+        System.out.println(ELECTION_INTERVAL + " milliseconds Timer is reset ...");
     }
 
     //Become Candidate
-    private boolean initiateElection(){
+    private void initiateElection(){
 
         //Convert to candidate role at the beginning
         System.out.println("New Election starts!");
@@ -212,8 +238,6 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-
-        return false;
     }
 
 
@@ -229,6 +253,12 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
     private void becomeLeader(){
         System.out.println("Step up as a leader ...");
         convertRole(Role.Leader);
+        try{
+            changeProperty("Config", "CurrentLeader", dataCenterId);
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+
 
         // Repair followers' logs
         //TODO
@@ -265,7 +295,7 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
             System.out.println("ERROR: Could not create the registry.");
             e.printStackTrace();
         }
-        System.out.println("Waiting...");
+        System.out.println("Data Center " + dataCenterId + " is Waiting...");
         try {
             if (reg != null) {
                 reg.rebind(this.dataCenterId, this); //Listening to RMI call from other data center
@@ -287,7 +317,7 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
             if (port != this.port) {
                 try{
                     Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
-                    Communication comm = (Communication) registry.lookup("D" + id);
+                    DC_Comm comm = (DC_Comm) registry.lookup("D" + id);
                     if (comm != null) {
                         comm.sendAppendEntries(currentTerm, dataCenterId, lastLogIndex, lastLogTerm, logEntry, lastLogIndex, this.port);
                     }
@@ -306,7 +336,7 @@ public class DataCenter extends UnicastRemoteObject implements Communication{
             if (port != this.port) {
                 try{
                     Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
-                    Communication comm = (Communication) registry.lookup("D" + id);
+                    DC_Comm comm = (DC_Comm) registry.lookup("D" + id);
                     if (comm != null) {
                         comm.sendRequestVote(dataCenterId, currentTerm, lastLogIndex, lastLogTerm, this.port);
                     }

@@ -6,10 +6,11 @@ import java.rmi.RemoteException;
 /**
  * Created by michaelzhang on 2/25/17.
  */
-public interface Communication extends Remote {
+public interface DC_Comm extends Remote {
 
-    // Client Communication
-    boolean buy(int numOfTicket) throws RemoteException;
+
+    // Client DC_Comm
+    void request(int numOfTicket, int requestId) throws RemoteException;
 
     void show() throws RemoteException;
     //First line shows the state of the state machine for the application.
@@ -20,7 +21,7 @@ public interface Communication extends Remote {
     //Configuration change command. Parameter list will be modified later.
 
 
-    //Inter-DataCenter Communication
+    //Inter-DataCenter DC_Comm
     void sendRequestVote(String candidateId,
                          int term,
                          int lastLogIndex,
@@ -39,7 +40,7 @@ public interface Communication extends Remote {
                            int myPort) throws RemoteException;
 
     //Followers' Reply to AppendEntries
-    void sendACK(int term,
+    void sendReply(int term,
                  boolean success) throws RemoteException;
 
 }

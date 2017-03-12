@@ -2,20 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="df050e7b-b62c-4ead-8679-1829138cd47b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/log_D1" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/log_D2" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/log_D3" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/log_D4" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/log_D5" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/AppendEntries.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config" afterPath="$PROJECT_DIR$/Config" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config_Original" afterPath="$PROJECT_DIR$/Config_Original" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Test.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Test.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -660,7 +647,14 @@
       <option name="project" value="LOCAL" />
       <updated>1488153738075</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Add AppendEntries logic">
+      <created>1489300966873</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1489300966873</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -738,7 +732,8 @@
     <MESSAGE value="Add RMI interface" />
     <MESSAGE value="Add election Phase code" />
     <MESSAGE value="Add Client code" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Client code" />
+    <MESSAGE value="Add AppendEntries logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add AppendEntries logic" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

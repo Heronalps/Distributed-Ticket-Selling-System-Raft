@@ -98,9 +98,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         // And TotalNumOfDataCenter in Config will increment
 
         try{
-            int total = Integer.parseInt(readConfig("Config", "TotalNumOfDataCenter"));
+            int total = Integer.parseInt(readConfig("Config_" + dataCenterId, "TotalNumOfDataCenter"));
             majority = (total + 1) / 2 + 1;
-            changeProperty("Config", "TotalNumOfDataCenter", String.valueOf(total + 1));
+            changeProperty("Config_" + dataCenterId, "TotalNumOfDataCenter", String.valueOf(total + 1));
         } catch (IOException ex){
             ex.printStackTrace();
         }
@@ -110,15 +110,21 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     public void handlerequest(int numOfTicket,
                               String clientId,
                               int requestId,
-                              int clientPort) throws RemoteException {
+                              int clientPort,
+                              boolean isConfigChange) throws RemoteException {
+        LogEntry logEntry = null;
 
-        LogEntry logEntry = new LogEntry(currentTerm, lastLogIndex + 1, numOfTicket, clientId, requestId, clientPort);
+        if (!isConfigChange) {
+            logEntry = new LogEntry(currentTerm, lastLogIndex + 1, numOfTicket,
+                    clientId, requestId, clientPort, false);
+
+        } else {
+            //TODO
+        }
+
         logEntries.add(logEntry);
-
-
-
-        //TODO Find a time to call responseToRequest()
     }
+
 
 
     //First line shows the state of the state machine for the application.
@@ -351,8 +357,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 if (this.currentRole == Role.Leader) {
                     try {
-                        int globalNumOfTicket = Integer.parseInt(readConfig("Config", "GlobalTicketNumber"));
-                        changeProperty("Config", "GlobalTicketNumber",
+                        int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
+                        changeProperty("Config_" + dataCenterId, "GlobalTicketNumber",
                                 String.valueOf(globalNumOfTicket - currentLogEntry.numOfTicket));
 
                     } catch (IOException ex) {
@@ -486,7 +492,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         System.out.println("Step up as a leader ...");
         convertRole(Role.Leader);
         try{
-            changeProperty("Config", "CurrentLeader", dataCenterId);
+            changeProperty("Config_" + dataCenterId, "CurrentLeader", dataCenterId);
         } catch (Exception ex){
             ex.printStackTrace();
         }
@@ -543,9 +549,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastAppendEntries() throws IOException{
         System.out.println("Broadcasting heartbeat to all data centers...");
-        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config","TotalNumOfDataCenter"));
+        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId,"TotalNumOfDataCenter"));
         for (int id = 1; totalNumOfDataCenter != 0; id++, totalNumOfDataCenter--){
-            int port = Integer.parseInt(readConfig("Config", "D" + id + "_PORT"));
+            int port = Integer.parseInt(readConfig("Config_" + dataCenterId, "D" + id + "_PORT"));
             if (port != this.port) {
                 sendAppendEntries(id, port);
             }
@@ -586,9 +592,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastRequestVote() throws IOException {
         System.out.println("Broadcasting RequestVote to all data centers...");
-        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config","TotalNumOfDataCenter"));
+        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId,"TotalNumOfDataCenter"));
         for (int id = 1; totalNumOfDataCenter != 0; id++, totalNumOfDataCenter--){
-            int port = Integer.parseInt(readConfig("Config", "D" + id + "_PORT"));
+            int port = Integer.parseInt(readConfig("Config_" + dataCenterId, "D" + id + "_PORT"));
             if (port != this.port) {
                 try{
                     Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
@@ -624,7 +630,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                 isReady = scan.nextLine().trim();
             }
             DataCenter server = new DataCenter(dataCenterId, port);
-            changeProperty("Config", dataCenterId + "_PORT", String.valueOf(port));
+            changeProperty("Config_" + dataCenterId, dataCenterId + "_PORT", String.valueOf(port));
             server.initialize();
 
         } catch (Exception ex){

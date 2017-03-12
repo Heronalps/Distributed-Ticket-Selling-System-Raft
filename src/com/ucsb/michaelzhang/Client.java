@@ -79,7 +79,7 @@ public class Client implements Client_Comm {
                 Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
                 DataCenter dc = (DataCenter) registry.lookup(currentLeaderId);
                 if (dc != null) {
-                    dc.handlerequest(numOfTicket, clientId, requestId, port);
+                    dc.handlerequest(numOfTicket, clientId, requestId, port, false);
                 }
                 System.out.println("Send request to Data Center " + currentLeaderId + " to buy " + numOfTicket + " tickets for the "
                         + counter + " time ...");
@@ -90,7 +90,7 @@ public class Client implements Client_Comm {
         }
     }
 
-    public void initialize(){
+    private void initialize(){
         System.out.println("Initializing Data Center " + clientId + " ...");
         Registry reg = null;
         try {
@@ -129,11 +129,33 @@ public class Client implements Client_Comm {
     }
 
 
-    public void buy(int numOfTicket){
+    public void buy(int numOfTicket) throws InterruptedException{
+
+        try{
+            int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + currentLeaderId, "GlobalTicketNumber"));
+            if (numOfTicket > globalNumOfTicket) {
+                System.out.println("Sorry. There is no sufficient tickets left in the pool.");
+                return;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
         this.numOfTicket = numOfTicket;
         sendClientRequest();
         startTimer();
+
+        while (this.isSuccess == false) {
+            Thread.sleep(TIMEOUT);
+            System.out.println("The request of " + numOfTicket + " tickets hasn't been fulfilled yet ...");
+        }
+        System.out.println("Successfully bought " + numOfTicket + " tickets ... ");
+
+        // Only when request is successfully fulfilled, the requestId will increment.
+
+        this.requestId++;
+        this.counter = 1;
+        this.isSuccess = false;
     }
 
     //First line shows the state of the state machine for the application.
@@ -188,38 +210,44 @@ public class Client implements Client_Comm {
             int port = Integer.parseInt(scan.nextLine().trim());
 
             Client client = new Client(clientId, port);
-            changeProperty("Config", clientId + "_PORT", String.valueOf(port));
+            changeProperty("Config_D" + clientId.substring(1), clientId + "_PORT", String.valueOf(port));
             client.initialize();
 
             while(true) {
-                System.out.println("Enter Ticket Number: ");
-                int numOfTicket = Integer.parseInt(scan.nextLine().trim());
-                int globalNumOfTicket = 0;
-                try{
-                    globalNumOfTicket = Integer.parseInt(readConfig("Config", "GlobalTicketNumber"));
+                System.out.println(" ");
+                System.out.println("Command Help:" );
+                System.out.println("*********************************************");
+                System.out.println("buy [ticket number]");
+                System.out.println("*********************************************");
+                System.out.println("show");
+                System.out.println("*********************************************");
+                System.out.println("change -up/-down [Data center ID] [Port] ...");
+                System.out.println("*********************************************");
+                System.out.println(" ");
+                System.out.println("Please enter your command : " );
+                System.out.println(" ");
 
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                String[] command = scan.nextLine().split(" ");
+                if (command[0].equals("buy")) {
+
+                    client.buy(Integer.parseInt(command[1]));
                 }
 
-                if (numOfTicket > globalNumOfTicket) {
-                    System.out.println("Sorry. There is no sufficient tickets left in the pool.");
-                    continue;
+                else if (command[0].equals("show")) {
+
+                    client.show();
                 }
 
-                client.buy(numOfTicket);
-                while (client.isSuccess == false) {
-                    Thread.sleep(TIMEOUT);
-                    System.out.println("The request of " + numOfTicket + " tickets hasn't been fulfilled yet ...");
+                else if (command[0].equals("change")) {
+
+                    if (command[1].equals("-up")) {
+
+                    }
+
+                    else if (command[1].equals("-down")) {
+
+                    }
                 }
-                System.out.println("Successfully bought " + numOfTicket + " tickets ... ");
-
-                // Only when request is successfully fulfilled, the requestId will increment.
-
-                client.requestId++;
-                client.counter = 1;
-                client.isSuccess = false;
-                client.show();
             }
 
         } catch (Exception ex){

@@ -10,7 +10,7 @@ public interface DC_Comm extends Remote {
 
 
     // Client DC_Comm
-    void handlerequest(int numOfTicket, String clientId, int requestId, int clientPort) throws RemoteException;
+    void handlerequest(int numOfTicket, String clientId, int requestId, int clientPort, boolean isConfigChange) throws RemoteException;
 
     void show() throws RemoteException;
     //First line shows the state of the state machine for the application.

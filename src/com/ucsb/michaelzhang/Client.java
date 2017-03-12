@@ -1,5 +1,8 @@
 package com.ucsb.michaelzhang;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
@@ -21,22 +24,30 @@ public class Client implements Client_Comm {
     Timer timer;
     String clientId;
     int port;
-    int requestId; // To avoid execute the same order multiple times
+    int requestId; // To avoid execute the same order multiple times. Only if the request fulfilled, the requestId increments.
     int numOfTicket;
     boolean isSuccess;
+    int counter; // How many times does client send the same request. Reset to one after a request fulfilled.
 
     private Client(String clientId, int port) {
 
         this.clientId = clientId;
         this.port = port;
-        this.requestId = 0;
+        this.requestId = 1;
         this.isSuccess = false;
+        this.counter = 1;
 
         try{
             currentLeaderId = readConfig("Config", "CurrentLeader");
             if (currentLeaderId != null){
                 currentLeaderPort = Integer.parseInt(readConfig("Config", currentLeaderId + "_PORT"));
             }
+            // Initially the TotalNumOfClient is zero. Whenever a new client is created,
+            // the TotalNumOfClient in Config will increment.
+
+            int total = Integer.parseInt(readConfig("Config", "TotalNumOfClient"));
+            changeProperty("Config", "TotalNumOfClient", String.valueOf(total + 1));
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -62,16 +73,17 @@ public class Client implements Client_Comm {
     }
 
     private void sendClientRequest(){
+
         if (currentLeaderId != null) {
             try {
                 Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
-                DC_Comm comm = (DC_Comm) registry.lookup(currentLeaderId);
-                if (comm != null) {
-                    comm.request(numOfTicket, requestId);
-                    requestId++;
+                DataCenter dc = (DataCenter) registry.lookup(currentLeaderId);
+                if (dc != null) {
+                    dc.handlerequest(numOfTicket, clientId, requestId, port);
                 }
                 System.out.println("Send request to Data Center " + currentLeaderId + " to buy " + numOfTicket + " tickets for the "
-                        + requestId + " time ...");
+                        + counter + " time ...");
+                counter++;
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -99,7 +111,7 @@ public class Client implements Client_Comm {
     }
 
 
-
+    // These three functions are handling the response from the data center
 
     public void responseToRequest(boolean success){
         if (success){
@@ -118,6 +130,7 @@ public class Client implements Client_Comm {
 
 
     public void buy(int numOfTicket){
+
         this.numOfTicket = numOfTicket;
         sendClientRequest();
         startTimer();
@@ -125,7 +138,37 @@ public class Client implements Client_Comm {
 
     //First line shows the state of the state machine for the application.
     //Following lines show committed log of the datacenter connected to.
+
     public void show(){
+
+        // First line show the current leader's log file
+        try {
+            String thisLine;
+            String newLeaderId = readConfig("Config", "CurrentLeader");
+            String path = "/Users/michaelzhang/Dropbox/Distributed-Ticket-Selling-System-Raft/log_" + newLeaderId;
+            FileReader fileReader = new FileReader(path);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            while ((thisLine = bufferedReader.readLine()) != null) {
+                System.out.println(thisLine);
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        // Following lines show the connected data center's log file
+        try {
+            String thisLine;
+            String path = "/Users/michaelzhang/Dropbox/Distributed-Ticket-Selling-System-Raft/log_" + currentLeaderId;
+            FileReader fileReader = new FileReader(path);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            while ((thisLine = bufferedReader.readLine()) != null) {
+                System.out.println(thisLine);
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -151,16 +194,33 @@ public class Client implements Client_Comm {
             while(true) {
                 System.out.println("Enter Ticket Number: ");
                 int numOfTicket = Integer.parseInt(scan.nextLine().trim());
+                int globalNumOfTicket = 0;
+                try{
+                    globalNumOfTicket = Integer.parseInt(readConfig("Config", "GlobalTicketNumber"));
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+                if (numOfTicket > globalNumOfTicket) {
+                    System.out.println("Sorry. There is no sufficient tickets left in the pool.");
+                    continue;
+                }
+
                 client.buy(numOfTicket);
                 while (client.isSuccess == false) {
                     Thread.sleep(TIMEOUT);
-                    System.out.println("The request of " + numOfTicket + " hasn't been fulfilled yet ...");
+                    System.out.println("The request of " + numOfTicket + " tickets hasn't been fulfilled yet ...");
                 }
                 System.out.println("Successfully bought " + numOfTicket + " tickets ... ");
+
+                // Only when request is successfully fulfilled, the requestId will increment.
+
+                client.requestId++;
+                client.counter = 1;
+                client.isSuccess = false;
                 client.show();
             }
-
-
 
         } catch (Exception ex){
             ex.printStackTrace();

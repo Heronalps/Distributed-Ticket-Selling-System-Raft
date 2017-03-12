@@ -10,7 +10,7 @@ public interface DC_Comm extends Remote {
 
 
     // Client DC_Comm
-    void request(int numOfTicket, int requestId) throws RemoteException;
+    void handlerequest(int numOfTicket, String clientId, int requestId, int clientPort) throws RemoteException;
 
     void show() throws RemoteException;
     //First line shows the state of the state machine for the application.
@@ -22,25 +22,21 @@ public interface DC_Comm extends Remote {
 
 
     //Inter-DataCenter DC_Comm
-    void sendRequestVote(String candidateId,
+    void handleRequestVote(String candidateId,
                          int term,
                          int lastLogIndex,
                          int lastLogTerm,
                          int myPort) throws RemoteException;
 
-    void sendVote(int term,
+    void handleVote(int term,
                   boolean voteGranted) throws RemoteException;
 
-    void sendAppendEntries(int term,
-                           String leadId,
-                           int prevLogIndex,
-                           int prevLogTerm,
-                           LogEntry entries, //log entries to store, empty for heartbeat
-                           int commitIndex,
-                           int myPort) throws RemoteException;
+    void handleAppendEntries(AppendEntries appendEntries) throws RemoteException;
 
     //Followers' Reply to AppendEntries
-    void sendReply(int term,
-                 boolean success) throws RemoteException;
+    void handleReply(int term,
+                     boolean success,
+                     int matchIndex,
+                     String followerID) throws RemoteException;
 
 }

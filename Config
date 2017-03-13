@@ -1,10 +1,2 @@
-TotalNumOfDataCenter=6
-TotalNumOfClient=7
-GlobalTicketNumber=5
-CurrentLeader=D1
-
-ClientC0_TICKET=3
-ClientC1_TICKET=4
-
-D1_PORT=1203
-C1_PORT=1100
+TotalNumOfDataCenter=3
+GlobalTicketNumber=100

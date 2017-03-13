@@ -3,8 +3,10 @@ package com.ucsb.michaelzhang;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,9 +16,9 @@ import static com.ucsb.michaelzhang.Configuration.*;
 /**
  * Created by michaelzhang on 2/22/17.
  */
-public class Client implements Client_Comm {
+public class Client extends UnicastRemoteObject implements Client_Comm {
 
-    static final int TIMEOUT = 6000;
+    static final int TIMEOUT = 1 * 10 * 1000;
 
     // Leader ID of current leader to connect. Null if unknown.
     String currentLeaderId;
@@ -29,7 +31,7 @@ public class Client implements Client_Comm {
     boolean isSuccess;
     int counter; // How many times does client send the same request. Reset to one after a request fulfilled.
 
-    private Client(String clientId, int port) {
+    private Client(String clientId, int port) throws RemoteException {
 
         this.clientId = clientId;
         this.port = port;
@@ -38,15 +40,10 @@ public class Client implements Client_Comm {
         this.counter = 1;
 
         try{
-            currentLeaderId = readConfig("Config", "CurrentLeader");
+            currentLeaderId = readConfig("Leader", "CurrentLeader");
             if (currentLeaderId != null){
-                currentLeaderPort = Integer.parseInt(readConfig("Config", currentLeaderId + "_PORT"));
+                currentLeaderPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), currentLeaderId + "_PORT"));
             }
-            // Initially the TotalNumOfClient is zero. Whenever a new client is created,
-            // the TotalNumOfClient in Config will increment.
-
-            int total = Integer.parseInt(readConfig("Config", "TotalNumOfClient"));
-            changeProperty("Config", "TotalNumOfClient", String.valueOf(total + 1));
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -74,12 +71,25 @@ public class Client implements Client_Comm {
 
     private void sendClientRequest(){
 
+        // Only if leader crashes, the new request from client would be effective to reach to new leader.
+        // So, every time resend request, client needs to pull out possibly new Leader information.
+
+        try{
+            currentLeaderId = readConfig("Leader", "CurrentLeader");
+            if (currentLeaderId != null){
+                currentLeaderPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), currentLeaderId + "_PORT"));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         if (currentLeaderId != null) {
             try {
                 Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
-                DataCenter dc = (DataCenter) registry.lookup(currentLeaderId);
+                DC_Comm dc = (DC_Comm) registry.lookup(currentLeaderId);
                 if (dc != null) {
-                    dc.handlerequest(numOfTicket, clientId, requestId, port, false);
+                    dc.handleRequest(numOfTicket, clientId, requestId, this.port, false);
                 }
                 System.out.println("Send request to Data Center " + currentLeaderId + " to buy " + numOfTicket + " tickets for the "
                         + counter + " time ...");
@@ -91,7 +101,7 @@ public class Client implements Client_Comm {
     }
 
     private void initialize(){
-        System.out.println("Initializing Data Center " + clientId + " ...");
+        System.out.println("Initializing Client " + clientId + " ...");
         Registry reg = null;
         try {
             reg = LocateRegistry.createRegistry(this.port);
@@ -113,7 +123,9 @@ public class Client implements Client_Comm {
 
     // These three functions are handling the response from the data center
 
-    public void responseToRequest(boolean success){
+    public void responseToRequest(boolean success) throws RemoteException {
+
+        System.out.println("I am reached ...");
         if (success){
             this.isSuccess = true;
             cancelTimer();
@@ -145,7 +157,7 @@ public class Client implements Client_Comm {
         sendClientRequest();
         startTimer();
 
-        while (this.isSuccess == false) {
+        while (!this.isSuccess) {
             Thread.sleep(TIMEOUT);
             System.out.println("The request of " + numOfTicket + " tickets hasn't been fulfilled yet ...");
         }

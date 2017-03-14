@@ -18,7 +18,7 @@ import static com.ucsb.michaelzhang.Configuration.*;
  */
 public class Client extends UnicastRemoteObject implements Client_Comm {
 
-    static final int TIMEOUT = 1 * 10 * 1000;
+    static final int TIMEOUT = 1 * 5 * 1000;
 
     // Leader ID of current leader to connect. Null if unknown.
     String currentLeaderId;

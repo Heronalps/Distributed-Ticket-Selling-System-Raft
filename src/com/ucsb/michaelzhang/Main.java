@@ -17,8 +17,13 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            deleteProperty("log_D1", "Committed Log Entry_1");
-        } catch (IOException ex) {
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", 1102);
+            DC_Comm comm = (DC_Comm) registry.lookup("D2");
+            if (comm != null) {
+                comm.handleVote(2, true, "D3");
+            }
+            System.out.println("Reply with " + true + " vote to " + "D2" + " ...");
+        } catch (NotBoundException | RemoteException ex) {
             ex.printStackTrace();
         }
     }

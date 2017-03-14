@@ -1,2 +1,4 @@
-
-Committed Log Entry_1=RequestId 1 : C1 successfully bought 5 tickets.
+Committed Log Entry_2=RequestId 2 : C1 successfully bought 6 tickets.
+Committed Log Entry_3=RequestId 3 : C1 successfully bought 7 tickets.
+Committed Log Entry_4=RequestId 1 : C2 successfully bought 5 tickets.
+Committed Log Entry_5=RequestId 1 : C3 successfully bought 19 tickets.

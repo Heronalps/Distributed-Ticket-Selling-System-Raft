@@ -173,6 +173,8 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
     //First line shows the state of the state machine for the application.
     //Following lines show committed log of the datacenter connected to.
 
+    // Call data center's showLogEntries and retrun entry.toString();
+
     public void show(){
 
         // First line show the current leader's log file
@@ -222,7 +224,10 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             int port = Integer.parseInt(scan.nextLine().trim());
 
             Client client = new Client(clientId, port);
-            changeProperty("Config_D" + clientId.substring(1), clientId + "_PORT", String.valueOf(port));
+
+            //Since request has the information of clientId and port, operation below is unnecessary.
+            //changeProperty("Config_D" + clientId.substring(1), clientId + "_PORT", String.valueOf(port));
+
             client.initialize();
 
             while(true) {

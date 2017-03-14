@@ -48,14 +48,25 @@ public class Configuration {
         tmpFile.renameTo(file);
     }
 
+    public static void deleteProperty (String filename, String key) throws IOException {
 
-    public boolean change(
-            //Parameters to do
-    ) {
-        return false;
-    }
+        final File tmpFile = new File(filename + ".tmp");
+        final File file = new File(filename);
 
-    public static void main(String[] args) {
+        //New printWriter will empty the file. That's why it needs a tmp.
+        PrintWriter pw = new PrintWriter(tmpFile);
+        BufferedReader br = new BufferedReader(new FileReader(file));
 
+        for (String line; (line = br.readLine()) != null; ) {
+            if (line.startsWith(key + '=')) {
+                line = "";
+            }
+            pw.println(line);
+        }
+
+        br.close();
+        pw.close();
+
+        tmpFile.renameTo(file);
     }
 }

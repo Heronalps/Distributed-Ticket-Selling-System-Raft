@@ -2,18 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="df050e7b-b62c-4ead-8679-1829138cd47b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Leader" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/server.policy" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config" afterPath="$PROJECT_DIR$/Config" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Config_Original" afterPath="$PROJECT_DIR$/Config_Original" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/log_D1" afterPath="$PROJECT_DIR$/log_D1" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/log_D2" afterPath="$PROJECT_DIR$/log_D2" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/log_D3" afterPath="$PROJECT_DIR$/log_D3" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/AppendEntries.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/AppendEntries.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Configuration.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Configuration.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -38,53 +35,13 @@
       <file leaf-file-name="DataCenter.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="276" column="0" lean-forward="false" selection-start-line="276" selection-start-column="0" selection-end-line="276" selection-end-column="0" />
+            <state relative-caret-position="350">
+              <caret line="685" column="12" lean-forward="false" selection-start-line="685" selection-start-column="12" selection-end-line="685" selection-end-column="12" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#17644#17775#0" expanded="true" />
-                <element signature="e#17774#17775#0" expanded="true" />
+                <element signature="e#18067#18198#0" expanded="true" />
+                <element signature="e#18197#18198#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="log_D1" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/log_D1">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="log_D2" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/log_D2">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="log_D3" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/log_D3">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Client.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="20" column="36" lean-forward="false" selection-start-line="20" selection-start-column="36" selection-end-line="20" selection-end-column="36" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -99,21 +56,41 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LogEntry.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java">
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="15" column="0" lean-forward="true" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+            <state relative-caret-position="289">
+              <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AppendEntries.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/AppendEntries.java">
+      <file leaf-file-name="log_D1" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/log_D1">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="30" column="41" lean-forward="false" selection-start-line="30" selection-start-column="41" selection-end-line="30" selection-end-column="41" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DC_Comm.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="159">
+              <caret line="30" column="9" lean-forward="false" selection-start-line="30" selection-start-column="9" selection-end-line="30" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Client.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2703">
+              <caret line="175" column="69" lean-forward="false" selection-start-line="175" selection-start-column="69" selection-end-line="175" selection-end-column="69" />
               <folding />
             </state>
           </provider>
@@ -122,8 +99,18 @@
       <file leaf-file-name="Config_D1" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Config_D1">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+            <state relative-caret-position="85">
+              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Config_D2" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Config_D2">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="85">
+              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -151,17 +138,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>change</find>
-      <find>+ 1</find>
-      <find>DataCenter</find>
-      <find>Client</find>
-      <find>becomeLeader</find>
-      <find>matchIndexMap</find>
-      <find>handle</find>
-      <find>handleVote</find>
-      <find>majority</find>
-      <find>heartbeat</find>
-      <find>`</find>
       <find>append</find>
       <find>handlerequest</find>
       <find>handleA</find>
@@ -181,6 +157,17 @@
       <find>showLogEntries</find>
       <find>reply</find>
       <find>sendApp</find>
+      <find>Incre</find>
+      <find>committedEntryCounter</find>
+      <find>Config_D</find>
+      <find>handleRequestVote</find>
+      <find>sendVote</find>
+      <find>Scena</find>
+      <find>Scenario</find>
+      <find>handleVote</find>
+      <find>Reply with</find>
+      <find>Handling the vote</find>
+      <find>Sent RequestVote to</find>
     </findStrings>
     <replaceStrings>
       <replace>Cell</replace>
@@ -209,7 +196,6 @@
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/RMIServer.java" />
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/RMIInterface.java" />
         <option value="$PROJECT_DIR$/server.policy" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Configuration.java" />
         <option value="$PROJECT_DIR$/Configuration" />
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/RequestVote.java" />
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Communication.java" />
@@ -233,20 +219,21 @@
         <option value="$PROJECT_DIR$/Config_D4" />
         <option value="$PROJECT_DIR$/Config_D5" />
         <option value="$PROJECT_DIR$/Config" />
-        <option value="$PROJECT_DIR$/Config_D2" />
         <option value="$PROJECT_DIR$/Config_Original" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java" />
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java" />
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/AppendEntries.java" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" />
-        <option value="$PROJECT_DIR$/Leader" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
-        <option value="$PROJECT_DIR$/Config_D1" />
-        <option value="$PROJECT_DIR$/Config_D3" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
-        <option value="$PROJECT_DIR$/log_D1" />
         <option value="$PROJECT_DIR$/log_D2" />
         <option value="$PROJECT_DIR$/log_D3" />
+        <option value="$PROJECT_DIR$/Config_D1" />
+        <option value="$PROJECT_DIR$/Config_D2" />
+        <option value="$PROJECT_DIR$/Config_D3" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java" />
+        <option value="$PROJECT_DIR$/Leader" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Configuration.java" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" />
+        <option value="$PROJECT_DIR$/log_D1" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
       </list>
     </option>
   </component>
@@ -362,7 +349,7 @@
       <recent name="$PROJECT_DIR$/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Client">
+  <component name="RunManager" selected="Application.Main">
     <configuration default="false" name="HotWordsAnalyzerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -683,9 +670,9 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Application.Client" />
-        <item index="1" class="java.lang.String" itemvalue="Application.DataCenter" />
-        <item index="2" class="java.lang.String" itemvalue="Application.Main" />
+        <item index="0" class="java.lang.String" itemvalue="Application.DataCenter" />
+        <item index="1" class="java.lang.String" itemvalue="Application.Main" />
+        <item index="2" class="java.lang.String" itemvalue="Application.Client" />
         <item index="3" class="java.lang.String" itemvalue="Application.Test" />
         <item index="4" class="java.lang.String" itemvalue="JUnit.HotWordsAnalyzerTest" />
       </list>
@@ -754,7 +741,14 @@
       <option name="project" value="LOCAL" />
       <updated>1489346756978</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Add Repair log and commit log logic">
+      <created>1489395808690</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1489395808690</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -803,7 +797,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3992095" sideWeight="0.50860834" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.45454547" sideWeight="0.49426112" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31093544" sideWeight="0.49426112" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -834,7 +828,8 @@
     <MESSAGE value="Add Client code" />
     <MESSAGE value="Add AppendEntries logic" />
     <MESSAGE value="Add three Client command interface" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add three Client command interface" />
+    <MESSAGE value="Add Repair log and commit log logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Repair log and commit log logic" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -844,12 +839,6 @@
           <line>18</line>
           <properties />
           <option name="timeStamp" value="39" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java</url>
-          <line>19</line>
-          <properties />
-          <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>
       <option name="time" value="55" />
@@ -861,7 +850,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/michaelzhang/Client_Comm.java" />
     <entry file="file://$PROJECT_DIR$/src/michaelzhang/DC_Comm.java" />
     <entry file="file://$PROJECT_DIR$/src/michaelzhang/Client.java" />
     <entry file="file://$PROJECT_DIR$/src/michaelzhang/Configuration.java" />
@@ -1011,14 +999,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Configuration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_91.jdk/Contents/Home/src.zip!/java/lang/Object.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="160">
@@ -1030,26 +1010,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Config_D2">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/AppendEntries.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="409">
           <caret line="30" column="41" lean-forward="false" selection-start-line="30" selection-start-column="41" selection-end-line="30" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="26" column="33" lean-forward="true" selection-start-line="26" selection-start-column="33" selection-end-line="26" selection-end-column="33" />
           <folding />
         </state>
       </provider>
@@ -1062,22 +1026,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
-          <caret line="37" column="9" lean-forward="false" selection-start-line="37" selection-start-column="9" selection-end-line="37" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Leader">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/LogEntry.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -1086,31 +1034,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Config_D1">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Config_D3">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="20" column="36" lean-forward="false" selection-start-line="20" selection-start-column="36" selection-end-line="20" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/log_D1">
+    <entry file="file://$PROJECT_DIR$/log_D3">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1126,7 +1050,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/log_D3">
+    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DC_Comm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="159">
+          <caret line="30" column="9" lean-forward="false" selection-start-line="30" selection-start-column="9" selection-end-line="30" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2703">
+          <caret line="175" column="69" lean-forward="false" selection-start-line="175" selection-start-column="69" selection-end-line="175" selection-end-column="69" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server.policy">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1134,14 +1074,70 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Leader">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/log_D1">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Configuration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="367">
+          <caret line="67" column="19" lean-forward="false" selection-start-line="67" selection-start-column="19" selection-end-line="67" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Config_D2">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Config_D3">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Config_D1">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="276" column="0" lean-forward="false" selection-start-line="276" selection-start-column="0" selection-end-line="276" selection-end-column="0" />
+        <state relative-caret-position="350">
+          <caret line="685" column="12" lean-forward="false" selection-start-line="685" selection-start-column="12" selection-end-line="685" selection-end-column="12" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#17644#17775#0" expanded="true" />
-            <element signature="e#17774#17775#0" expanded="true" />
+            <element signature="e#18067#18198#0" expanded="true" />
+            <element signature="e#18197#18198#0" expanded="true" />
           </folding>
         </state>
       </provider>

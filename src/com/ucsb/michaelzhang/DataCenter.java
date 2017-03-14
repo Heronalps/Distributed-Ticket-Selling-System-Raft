@@ -1,6 +1,7 @@
 package com.ucsb.michaelzhang;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -8,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 import static com.ucsb.michaelzhang.Configuration.changeProperty;
+import static com.ucsb.michaelzhang.Configuration.deleteProperty;
 import static com.ucsb.michaelzhang.Configuration.readConfig;
 
 /**
@@ -172,26 +174,31 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             sendVote(false, myPort, candidateId);
 
         } else if(term > currentTerm) {
+
             updateTerm(term);
             if(this.currentRole == Role.Candidate || this.currentRole == Role.Leader) {
                 becomeFollower();
             }
-            if (lastLogTerm > this.lastLogTerm || (lastLogTerm == this.lastLogTerm && lastLogIndex >= this.lastLogIndex)){
 
+            if (this.lastLogTerm > lastLogTerm || (this.lastLogTerm == lastLogTerm && this.lastLogIndex > lastLogIndex)){
+
+                System.out.println("Scenario 1");
+                voteFor = null;
+                sendVote(false, myPort, candidateId);
+
+            } else {
+
+                System.out.println("Scenario 2");
                 resetTimer(); //Only reset timer when I vote true.
                 voteFor = candidateId;
                 sendVote(true, myPort, candidateId);
 
-
-
-            } else {
-                voteFor = null;
-                sendVote(false, myPort, candidateId);
             }
         } else if (term == currentTerm){
             if ((voteFor == null || voteFor.equals(candidateId))
-                    && lastLogTerm > this.lastLogTerm || (lastLogTerm == this.lastLogTerm && lastLogIndex >= this.lastLogIndex)) {
+                    && (lastLogTerm > this.lastLogTerm || (lastLogTerm == this.lastLogTerm && lastLogIndex >= this.lastLogIndex))) {
 
+                System.out.println("Scenario 3");
                 resetTimer();
                 sendVote(true, myPort, candidateId);
             }
@@ -199,9 +206,10 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     }
 
     public void handleVote(int term,
-                         boolean voteGranted,
+                           boolean voteGranted,
                            String followerId) throws RemoteException {
 
+        System.out.println("Handling the vote from " + followerId);
         if (term <= currentTerm) {
             if (voteGranted) {
                 voteMap.put(followerId, true);
@@ -274,7 +282,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                 else if (appendEntries.prevIndex != 0
                         && (appendEntries.prevIndex == 1
                         || (logEntries.size() >= prevLogIndex
-                        && logEntries.get(prevLogIndex).term == appendEntries.prevPrevTerm))) {
+                        && logEntries.get(prevLogIndex - 1).term == appendEntries.prevPrevTerm))) {
 
                     resetTimer();
                     if (logEntries.size() > prevLogIndex) {
@@ -394,6 +402,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                     System.out.println("Increment committedIndex ..");
                     committedIndex++;
+                    committedEntryCounter++;
 
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -469,8 +478,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             if (comm != null) {
                 comm.handleVote(currentTerm, isVote, dataCenterId);
             }
-            System.out.println("Reply with " + isVote + " vote...");
-        } catch (Exception ex) {
+            System.out.println("Reply with " + isVote + " vote to " + candidateId + " ...");
+        } catch (NotBoundException | RemoteException ex) {
             ex.printStackTrace();
         }
     }
@@ -670,10 +679,20 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                     DC_Comm dc = (DC_Comm) registry.lookup("D" + id);
                     if (dc != null) {
+
+                        System.out.println("Sent RequestVote to " + "D" + id);
                         dc.handleRequestVote(dataCenterId, currentTerm, lastLogIndex, lastLogTerm, this.port);
                     }
-                } catch (Exception ex) {
+                } catch (NotBoundException ex) {
+                    System.out.println("Can't find Receiver ...");
+                    try{
+                        deleteProperty("Config_" + dataCenterId, "D" + id + "_PORT");
+                    } catch (IOException ex1) {
+                        ex1.printStackTrace();
+                    }
+
                     ex.printStackTrace();
+                    continue;
                 }
             }
         }

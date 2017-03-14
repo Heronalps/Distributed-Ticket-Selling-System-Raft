@@ -29,7 +29,7 @@ public interface DC_Comm extends Remote {
                          int myPort) throws RemoteException;
 
     void handleVote(int term,
-                  boolean voteGranted,
+                    boolean voteGranted,
                     String followerId) throws RemoteException;
 
     void handleAppendEntries(AppendEntries appendEntries) throws RemoteException;

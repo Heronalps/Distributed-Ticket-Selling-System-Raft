@@ -9,7 +9,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/log_D3" afterPath="$PROJECT_DIR$/log_D3" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" afterPath="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -33,14 +32,14 @@
       <file leaf-file-name="DataCenter.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6680">
-              <caret line="324" column="37" lean-forward="false" selection-start-line="324" selection-start-column="37" selection-end-line="324" selection-end-column="37" />
+            <state relative-caret-position="-1785">
+              <caret line="39" column="12" lean-forward="false" selection-start-line="39" selection-start-column="12" selection-end-line="39" selection-end-column="12" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#19723#19854#0" expanded="true" />
-                <element signature="e#19853#19854#0" expanded="true" />
-                <element signature="e#20374#20638#0" expanded="true" />
-                <element signature="e#20637#20638#0" expanded="true" />
+                <element signature="e#20732#20863#0" expanded="true" />
+                <element signature="e#20862#20863#0" expanded="true" />
+                <element signature="e#21383#21647#0" expanded="true" />
+                <element signature="e#21646#21647#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -59,28 +58,8 @@
       <file leaf-file-name="Client.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="157" column="21" lean-forward="true" selection-start-line="157" selection-start-column="21" selection-end-line="157" selection-end-column="21" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Config_D2" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Config_D2">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="22" lean-forward="false" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Config_D3" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Config_D3">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+            <state relative-caret-position="-3185">
+              <caret line="30" column="12" lean-forward="false" selection-start-line="30" selection-start-column="12" selection-end-line="30" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -89,18 +68,58 @@
       <file leaf-file-name="Config_D1" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Config_D1">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="22" lean-forward="false" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
+            <state relative-caret-position="17">
+              <caret line="1" column="21" lean-forward="false" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Config_D5" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Config_D5">
+      <file leaf-file-name="Config_D2" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Config_D2">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="119">
-              <caret line="7" column="0" lean-forward="true" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+              <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Config_D3" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Config_D3">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="1" column="21" lean-forward="false" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="log_D1" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/log_D1">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="log_D2" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/log_D2">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="log_D3" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/log_D3">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -118,11 +137,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Scenario</find>
-      <find>Reply with</find>
-      <find>Handling the vote</find>
-      <find>Sent RequestVote to</find>
-      <find>Can't find Receiver</find>
       <find>handleRequestVote</find>
       <find>Thread</find>
       <find>Thread.sleep</find>
@@ -148,6 +162,11 @@
       <find>matchIndexMap</find>
       <find>Following are entries in my Log</find>
       <find>showLogEntries</find>
+      <find>Received a request from</find>
+      <find>responseToRequest</find>
+      <find>Send request to Data</find>
+      <find>handleRequest</find>
+      <find>matchIndex</find>
     </findStrings>
     <replaceStrings>
       <replace>Cell</replace>
@@ -205,15 +224,15 @@
         <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Main.java" />
         <option value="$PROJECT_DIR$/Config_D4" />
         <option value="$PROJECT_DIR$/Config_D5" />
+        <option value="$PROJECT_DIR$/Leader" />
         <option value="$PROJECT_DIR$/Config_D1" />
         <option value="$PROJECT_DIR$/Config_D2" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
-        <option value="$PROJECT_DIR$/log_D2" />
-        <option value="$PROJECT_DIR$/log_D1" />
-        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
-        <option value="$PROJECT_DIR$/Leader" />
-        <option value="$PROJECT_DIR$/log_D3" />
         <option value="$PROJECT_DIR$/Config_D3" />
+        <option value="$PROJECT_DIR$/log_D1" />
+        <option value="$PROJECT_DIR$/log_D2" />
+        <option value="$PROJECT_DIR$/log_D3" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java" />
+        <option value="$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java" />
       </list>
     </option>
   </component>
@@ -650,8 +669,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Application.DataCenter" />
-        <item index="1" class="java.lang.String" itemvalue="Application.Client" />
+        <item index="0" class="java.lang.String" itemvalue="Application.Client" />
+        <item index="1" class="java.lang.String" itemvalue="Application.DataCenter" />
         <item index="2" class="java.lang.String" itemvalue="Application.Main" />
         <item index="3" class="java.lang.String" itemvalue="Application.Test" />
         <item index="4" class="java.lang.String" itemvalue="JUnit.HotWordsAnalyzerTest" />
@@ -735,7 +754,14 @@
       <option name="project" value="LOCAL" />
       <updated>1489454135901</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Passed first and second user cases">
+      <created>1489476587923</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1489476587923</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -784,7 +810,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3992095" sideWeight="0.50860834" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16073781" sideWeight="0.49426112" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3320158" sideWeight="0.49426112" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -817,7 +843,8 @@
     <MESSAGE value="Add three Client command interface" />
     <MESSAGE value="Add Repair log and commit log logic" />
     <MESSAGE value="Add Voting logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Voting logic" />
+    <MESSAGE value="Passed first and second user cases" />
+    <option name="LAST_COMMIT_MESSAGE" value="Passed first and second user cases" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -926,14 +953,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
           <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/log_D5">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1053,10 +1072,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/log_D2">
+    <entry file="file://$PROJECT_DIR$/Leader">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state relative-caret-position="17">
+          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1069,31 +1088,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/log_D1">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="157" column="21" lean-forward="true" selection-start-line="157" selection-start-column="21" selection-end-line="157" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Leader">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/log_D3">
+    <entry file="file://$PROJECT_DIR$/log_D5">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -1103,38 +1098,70 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Config_D1">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="22" lean-forward="false" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
+        <state relative-caret-position="17">
+          <caret line="1" column="21" lean-forward="false" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Config_D2">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="22" lean-forward="false" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
+        <state relative-caret-position="119">
+          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Config_D3">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+        <state relative-caret-position="17">
+          <caret line="1" column="21" lean-forward="false" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/log_D1">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/log_D2">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/log_D3">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3185">
+          <caret line="30" column="12" lean-forward="false" selection-start-line="30" selection-start-column="12" selection-end-line="30" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/ucsb/michaelzhang/DataCenter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6680">
-          <caret line="324" column="37" lean-forward="false" selection-start-line="324" selection-start-column="37" selection-end-line="324" selection-end-column="37" />
+        <state relative-caret-position="-1785">
+          <caret line="39" column="12" lean-forward="false" selection-start-line="39" selection-start-column="12" selection-end-line="39" selection-end-column="12" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#19723#19854#0" expanded="true" />
-            <element signature="e#19853#19854#0" expanded="true" />
-            <element signature="e#20374#20638#0" expanded="true" />
-            <element signature="e#20637#20638#0" expanded="true" />
+            <element signature="e#20732#20863#0" expanded="true" />
+            <element signature="e#20862#20863#0" expanded="true" />
+            <element signature="e#21383#21647#0" expanded="true" />
+            <element signature="e#21646#21647#0" expanded="true" />
           </folding>
         </state>
       </provider>

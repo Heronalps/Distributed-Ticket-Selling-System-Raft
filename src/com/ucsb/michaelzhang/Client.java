@@ -18,25 +18,23 @@ import static com.ucsb.michaelzhang.Configuration.*;
  */
 public class Client extends UnicastRemoteObject implements Client_Comm {
 
-    static final int TIMEOUT = 1 * 5 * 1000;
+    private static final int TIMEOUT = 10 * 1000;
 
     // Leader ID of current leader to connect. Null if unknown.
-    String currentLeaderId;
-    int currentLeaderPort;
-    Timer timer;
-    String clientId;
-    int port;
-    int requestId; // To avoid execute the same order multiple times. Only if the request fulfilled, the requestId increments.
-    int numOfTicket;
-    boolean isSuccess;
-    int counter; // How many times does client send the same request. Reset to one after a request fulfilled.
+    private String currentLeaderId;
+    private int currentLeaderPort;
+    private Timer timer;
+    private String clientId;
+    private int port;
+    private int requestId; // To avoid execute the same order multiple times. Only if the request fulfilled, the requestId increments.
+    private int numOfTicket;
+    private int counter; // How many times does client send the same request. Reset to one after a request fulfilled.
 
     private Client(String clientId, int port) throws RemoteException {
 
         this.clientId = clientId;
         this.port = port;
         this.requestId = 1;
-        this.isSuccess = false;
         this.counter = 1;
 
         try{
@@ -59,7 +57,8 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             }
         };
 
-        timer.scheduleAtFixedRate(timerTask, TIMEOUT, TIMEOUT);
+        timer.scheduleAtFixedRate(timerTask, 0, TIMEOUT);
+        System.out.println("");
         System.out.println(TIMEOUT + " milliseconds Timer starts ...");
     }
 
@@ -88,12 +87,13 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             try {
                 Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
                 DC_Comm dc = (DC_Comm) registry.lookup(currentLeaderId);
-                if (dc != null) {
-                    dc.handleRequest(numOfTicket, clientId, requestId, this.port, false);
-                }
                 System.out.println("Send request to Data Center " + currentLeaderId + " to buy " + numOfTicket + " tickets for the "
                         + counter + " time ...");
                 counter++;
+                if (dc != null) {
+                    dc.handleRequest(numOfTicket, clientId, requestId, this.port, false);
+                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -125,11 +125,21 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
     public void responseToRequest(boolean success) throws RemoteException {
 
-        System.out.println("I am reached ...");
+        cancelTimer();
+        counter = 1;
+        System.out.println("Received a response from " + currentLeaderId + " ...");
         if (success){
-            this.isSuccess = true;
-            cancelTimer();
+            System.out.println("Successfully bought " + numOfTicket + " tickets ... ");
+
+            // Only when request is successfully fulfilled, the requestId will increment.
+
+            this.requestId++;
+            this.counter = 1;
+
+        } else {
+            System.out.println("There's no sufficient tickets left in the pool ...");
         }
+        showMenu();
     }
 
     public void responseToShow(){
@@ -141,33 +151,10 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
     }
 
 
-    public void buy(int numOfTicket) throws InterruptedException{
-
-        try{
-            int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + currentLeaderId, "GlobalTicketNumber"));
-            if (numOfTicket > globalNumOfTicket) {
-                System.out.println("Sorry. There is no sufficient tickets left in the pool.");
-                return;
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+    private void buy(int numOfTicket) throws InterruptedException{
 
         this.numOfTicket = numOfTicket;
-        sendClientRequest();
         startTimer();
-
-        while (!this.isSuccess) {
-            Thread.sleep(TIMEOUT);
-            System.out.println("The request of " + numOfTicket + " tickets hasn't been fulfilled yet ...");
-        }
-        System.out.println("Successfully bought " + numOfTicket + " tickets ... ");
-
-        // Only when request is successfully fulfilled, the requestId will increment.
-
-        this.requestId++;
-        this.counter = 1;
-        this.isSuccess = false;
     }
 
     //First line shows the state of the state machine for the application.
@@ -175,7 +162,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
     // Call data center's showLogEntries and retrun entry.toString();
 
-    public void show(){
+    private void show(){
 
         // First line show the current leader's log file
         try {
@@ -213,6 +200,21 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
     }
 
+    private static void showMenu(){
+        System.out.println(" ");
+        System.out.println("Command Help:" );
+        System.out.println("*********************************************");
+        System.out.println("buy [ticket number]");
+        System.out.println("*********************************************");
+        System.out.println("show");
+        System.out.println("*********************************************");
+        System.out.println("change -up/-down [Data center ID] [Port] ...");
+        System.out.println("*********************************************");
+        System.out.println(" ");
+        System.out.println("Please enter your command : " );
+        System.out.println(" ");
+    }
+
     //Parse users' command and call buy() and show();
     public static void main(String[] args) {
 
@@ -229,20 +231,9 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             //changeProperty("Config_D" + clientId.substring(1), clientId + "_PORT", String.valueOf(port));
 
             client.initialize();
+            showMenu();
 
             while(true) {
-                System.out.println(" ");
-                System.out.println("Command Help:" );
-                System.out.println("*********************************************");
-                System.out.println("buy [ticket number]");
-                System.out.println("*********************************************");
-                System.out.println("show");
-                System.out.println("*********************************************");
-                System.out.println("change -up/-down [Data center ID] [Port] ...");
-                System.out.println("*********************************************");
-                System.out.println(" ");
-                System.out.println("Please enter your command : " );
-                System.out.println(" ");
 
                 String[] command = scan.nextLine().split(" ");
                 if (command[0].equals("buy")) {

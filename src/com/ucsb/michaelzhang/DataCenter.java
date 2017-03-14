@@ -19,25 +19,25 @@ import static com.ucsb.michaelzhang.Configuration.readConfig;
  */
 public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
-    static final int HEARTBEAT_INTERVAL = 5 * 1000;
-    static final int ELECTION_INTERVAL = 10 * 1000;
-    int currentTerm;
-    String voteFor;
-    ArrayList<LogEntry> logEntries; //logEntries is 1-based, instead of zero-based
-    Role currentRole;
-    String dataCenterId; //D1, D2, D3 ...
-    Timer timer;
-    Timer heartbeat;
-    int port;
-    static int majority; //Current majority of network
-    int lastLogIndex; //The index of last added log entry
-    int lastLogTerm; // The term of last added log entry
-    int committedIndex;
-    int committedEntryCounter;
-    HashSet<String> dataCenters;
-    static Map<String, Integer> matchIndexMap = new HashMap<>();
-    static Map<String, Integer> nextIndexMap = new HashMap<>();
-    static Map<String, Boolean> voteMap = new HashMap<>();
+    private static final int HEARTBEAT_INTERVAL = 5 * 1000;
+    private static final int ELECTION_INTERVAL = 10 * 1000;
+    private int currentTerm;
+    private String voteFor;
+    private ArrayList<LogEntry> logEntries; //logEntries is 1-based, instead of zero-based
+    private Role currentRole;
+    private String dataCenterId; //D1, D2, D3 ...
+    private Timer timer;
+    private Timer heartbeat;
+    private int port;
+    private static int majority; //Current majority of network
+    private int lastLogIndex; //The index of last added log entry
+    private int lastLogTerm; // The term of last added log entry
+    private int committedIndex;
+    private int committedEntryCounter;
+    private HashSet<String> dataCenters;
+    private static Map<String, Integer> matchIndexMap = new HashMap<>();
+    private static Map<String, Integer> nextIndexMap = new HashMap<>();
+    private static Map<String, Boolean> voteMap = new HashMap<>();
 
     /*
      * public void handlerequest(int numOfTicket, String clientId, int requestId) throws RemoteException;
@@ -132,21 +132,38 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         LogEntry logEntry;
 
         if (!isConfigChange) {
-            logEntry = new LogEntry(currentTerm, lastLogIndex + 1, numOfTicket,
-                    clientId, requestId, clientPort, false);
 
-            // To prevent duplicate request
+            try{
+                int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
+                if (globalNumOfTicket < numOfTicket) {
+                    Registry registry = LocateRegistry.getRegistry("127.0.0.1", clientPort);
+                    Client_Comm client = (Client_Comm) registry.lookup(clientId);
 
-            for (LogEntry entry : logEntries) {
-                if (logEntry.equals(entry)) {
-                    return;
+                    client.responseToRequest(false);
                 }
-            }
 
-            System.out.println("Received a request from " + clientId + " to buy " + numOfTicket + " tickets ...");
-            logEntries.add(logEntry);
-            lastLogIndex++;
-            lastLogTerm = logEntry.term;
+                // There are sufficient ticket in the pool
+
+                else {
+                    logEntry = new LogEntry(currentTerm, lastLogIndex + 1, numOfTicket,
+                            clientId, requestId, clientPort, false);
+
+                    // To prevent duplicate request
+
+                    for (LogEntry entry : logEntries) {
+                        if (logEntry.equals(entry)) {
+                            return;
+                        }
+                    }
+
+                    System.out.println("Received a request from " + clientId + " to buy " + numOfTicket + " tickets ...");
+                    logEntries.add(logEntry);
+                    lastLogIndex++;
+                    lastLogTerm = logEntry.term;
+                }
+            } catch (IOException | NotBoundException ex) {
+                ex.printStackTrace();
+            }
 
         } else { // The request is a configuration change
             //TODO
@@ -301,6 +318,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                         commitLogEntry(appendEntries.commitIndex);
                     }
                     System.out.println("Handling HeartBeat ...");
+                    System.out.println("lastLogIndex : " + lastLogIndex);
                     reply(true, lastLogIndex, appendEntries.leaderPort, appendEntries.leadId);
                     showLogEntries();
                 }
@@ -372,7 +390,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                 commitLogEntry(nextCommittedIndex);
             }
         }
-        else if (term == currentTerm && !success) {
+        else if (term == currentTerm) { // success is false in this case
 
             // Update nextIndexMap for next round sendAppendEntries()
 
@@ -428,6 +446,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             }
 
             if (!isCommitted) {
+
                 // Print in the corresponding log
                 try {
                     changeProperty("log_" + dataCenterId, "Committed Log Entry_" + committedEntryCounter,
@@ -442,19 +461,19 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                     ex.printStackTrace();
                 }
 
-                // if leader, substract from TotalNumOfTicket
+                // substract from TotalNumOfTicket
 
+                try {
+                    int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
+                    changeProperty("Config_" + dataCenterId, "GlobalTicketNumber",
+                            String.valueOf(globalNumOfTicket - currentLogEntry.numOfTicket));
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+                // if leader, notify client with successful information
                 if (this.currentRole == Role.Leader) {
-                    try {
-                        int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
-                        changeProperty("Config_" + dataCenterId, "GlobalTicketNumber",
-                                String.valueOf(globalNumOfTicket - currentLogEntry.numOfTicket));
-
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    // if leader, notify client with successful information
 
                     try {
                         Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLogEntry.clientPort);
@@ -468,9 +487,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                         ex.printStackTrace();
                     }
                 }
-
             }
-            else if (isCommitted){
+            else { // This log entry has already committed, but failed to notify the client.
 
                 // if leader, notify client with successful information
                 System.out.println("Calling Client ...");

@@ -37,10 +37,16 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     private String currentLeaderId;
     private int currentLeaderPort;
     private int configChangeCounter;
+    private boolean oldAndNewPeriod;
     private HashSet<String> dataCenters;
     private static Map<String, Integer> matchIndexMap = new HashMap<>();
     private static Map<String, Integer> nextIndexMap = new HashMap<>();
     private static Map<String, Boolean> voteMap = new HashMap<>();
+
+    // Maps for joint consensus
+    private static Map<String, Integer> tmpMatchIndexMap = new HashMap<>();
+    private static Map<String, Integer> tmpNextIndexMap = new HashMap<>();
+    private static Map<String, Boolean> tmpVoteMap = new HashMap<>();
 
     /*
      * public void handlerequest(int numOfTicket, String clientId, int requestId) throws RemoteException;
@@ -100,6 +106,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         this.timer = new Timer();
         this.heartbeat = new Timer();
         this.dataCenters = new HashSet<>();
+        this.oldAndNewPeriod = false;
 
 
         // Only Config change log entry has the right to modify config files.
@@ -310,13 +317,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
             }
         } else if (term == currentTerm){
-            /*System.out.println("voteFor : " + voteFor);
-            System.out.println("candidateId : " + candidateId);
-            System.out.println("lastLogTerm : " + lastLogTerm);
-            System.out.println("this.lastLogTerm : " + this.lastLogTerm);
-            System.out.println("lastLogIndex : " + lastLogIndex);
-            System.out.println("this.lastLogIndex : " + this.lastLogIndex);
-            */
             if ((voteFor == null || voteFor.equals(candidateId))
                     && (lastLogTerm > this.lastLogTerm || (lastLogTerm == this.lastLogTerm && lastLogIndex >= this.lastLogIndex))) {
 
@@ -531,8 +531,13 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
             ConfigChange configChange = (ConfigChange) logEntries.get(nextCommittedIndex - 1);
 
-            if (configChange.oldAndNew) {
-                //File
+            if (configChange.oldAndNew && currentRole == Role.Leader) {
+                //Create a tmp File to store the old configuration
+                try {
+                    duplicateFile("Config_" + dataCenterId, "Config_" + dataCenterId + "_OLD");
+                } catch (IOException ex) {
+                    System.out.println("Can't duplicate old configuration file ...");
+                }
             }
 
             try {
@@ -872,11 +877,10 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastAppendEntries() throws IOException{
         System.out.println("Broadcasting heartbeat to all data centers...");
-        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId,"TotalNumOfDataCenter"));
-        for (int id = 1; totalNumOfDataCenter != 0; id++, totalNumOfDataCenter--){
-            int port = Integer.parseInt(readConfig("Config_" + dataCenterId, "D" + id + "_PORT"));
+        for(String dataCenterID : dataCenters){
+            int port = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterID + "_PORT"));
             if (port != this.port) {
-                sendAppendEntries(id, port);
+                sendAppendEntries(Integer.parseInt(dataCenterID.substring(1)), port);
             }
         }
         showLogEntries();
@@ -903,19 +907,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         if (nextIndex >= 2) {
             prevPrevTerm = logEntries.get(nextIndex - 2).term;
         }
-        /*
-        System.out.println("nextIndex: " + nextIndex);
-        System.out.println("lastLogIndex: " + lastLogIndex);
-        System.out.println("lastLogTerm: " + lastLogTerm);
-        System.out.println("prevIndex: " + prevIndex);
-        System.out.println("prevTerm: " + prevTerm);
-        System.out.println("prevPrevTerm: " + prevPrevTerm);
-        if (entry != null) {
-            System.out.println("entry" + entry.toString());
-        } else {
-            System.out.println("entry is null");
-        }
-        */
+
         AppendEntries appendEntries = new AppendEntries(currentTerm, dataCenterId, prevIndex,
                                                         prevTerm, prevPrevTerm, entry, committedIndex, this.port);
         String receiver = "D" + id;
@@ -938,10 +930,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastRequestVote() throws IOException {
         System.out.println("Broadcasting RequestVote to all data centers...");
-        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId,"TotalNumOfDataCenter"));
-        for (int id = 1; totalNumOfDataCenter != 0; id++, totalNumOfDataCenter--){
-            String receiver = "D" + id;
-            int port = Integer.parseInt(readConfig("Config_" + dataCenterId, receiver + "_PORT"));
+
+        for(String dataCenterID : dataCenters){
+            int port = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterID + "_PORT"));
 
             if (port != this.port) {
                 try{
@@ -950,21 +941,21 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                     // An interface can be returned, though it has to be implemented somewhere in the program.
                     // In this case, DC_Comm is a Data center, because Data Center implements DC_Comm.
 
-                    DC_Comm dc = (DC_Comm) registry.lookup("D" + id);
+                    DC_Comm dc = (DC_Comm) registry.lookup(dataCenterID);
                     if (dc != null) {
 
-                        System.out.println("Sent RequestVote to " + "D" + id);
+                        System.out.println("Sent RequestVote to " + dataCenterID);
                         dc.handleRequestVote(dataCenterId, currentTerm, lastLogIndex, lastLogTerm, this.port);
-                        if (!dataCenters.contains(receiver)) {
-                            dataCenters.add(receiver);
+                        if (!dataCenters.contains(dataCenterID)) {
+                            dataCenters.add(dataCenterID);
                             System.out.println("Total number of Data Center comes back to" + dataCenters.size());
                             updateMajority();
                         }
                     }
                 } catch (NotBoundException | ConnectException ex) {
-                    System.out.println(receiver + " is not responding to Request Vote...");
-                    if (dataCenters.contains(receiver)) {
-                        dataCenters.remove(receiver);
+                    System.out.println(dataCenterID + " is not responding to Request Vote...");
+                    if (dataCenters.contains(dataCenterID)) {
+                        dataCenters.remove(dataCenterID);
                     }
                     System.out.println("Total number of Data Center is now " + dataCenters.size());
                     updateMajority();
@@ -977,13 +968,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         System.out.println("Following are entries in my Log : ");
         System.out.println(" ");
         for(LogEntry entry : logEntries) {
-            /*System.out.println("index: " + entry.index);
-            System.out.println("term: " + entry.term);
-            System.out.println("numOfTicket: " + entry.numOfTicket);
-            System.out.println("clientId: " + entry.clientId);
-            System.out.println("requestId: " + entry.requestId);
-            System.out.println("clientPort: " + entry.clientPort);
-            */
             System.out.println(entry.toString());
         }
     }

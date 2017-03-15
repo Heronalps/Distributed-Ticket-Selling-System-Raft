@@ -21,6 +21,12 @@ public class ConfigChange extends LogEntry {
         this.oldAndNew = oldAndNew;
         this.term = term;
         this.index = index;
+
+        //Flag value for ConfigChange
+        this.numOfTicket = -1;
+        this.clientId = "";
+        this.requestId = -1;
+        this.clientPort = -1;
     }
 
     @Override
@@ -28,11 +34,11 @@ public class ConfigChange extends LogEntry {
 
         StringBuilder oldSB = new StringBuilder();
         for (Map.Entry entry : oldDataCenterMap.entrySet()) {
-            oldSB.append(entry.getKey() + " ");
+            oldSB.append(entry.getKey()).append(" ");
         }
         StringBuilder newSB = new StringBuilder();
         for (Map.Entry entry : newDataCenterMap.entrySet()) {
-            newSB.append(entry.getKey() + " ");
+            newSB.append(entry.getKey()).append(" ");
         }
 
         String version = oldAndNew ? "OLD + NEW" : "NEW";

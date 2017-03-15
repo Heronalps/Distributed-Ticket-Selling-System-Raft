@@ -12,7 +12,6 @@ public class LogEntry implements Serializable{
     String clientId;
     int requestId;
     int clientPort;
-    boolean isConfigChange;
 
     @Override
     public boolean equals(Object entry){
@@ -23,16 +22,20 @@ public class LogEntry implements Serializable{
 
     @Override
     public String toString() {
-        return String.valueOf(requestId) + " " + clientId + " wants to buy " + String.valueOf(numOfTicket) + " tickets";
+        return "Request ID : " + String.valueOf(requestId) + " "
+                + clientId + " wants to buy " + String.valueOf(numOfTicket) + " tickets";
     }
 
-    LogEntry(int term, int index, int numOfTicket, String clientId, int requestId, int clientPort, boolean isConfigChange){
+    LogEntry() {
+
+    }
+
+    LogEntry(int term, int index, int numOfTicket, String clientId, int requestId, int clientPort){
         this.term = term;
         this.index = index;
         this.numOfTicket = numOfTicket;
         this.clientId = clientId;
         this.requestId = requestId;
         this.clientPort = clientPort;
-        this.isConfigChange = isConfigChange;
     }
 }

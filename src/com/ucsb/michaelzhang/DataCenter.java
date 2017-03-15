@@ -4,23 +4,22 @@ import java.io.IOException;
 import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.UnmarshalException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
-import static com.ucsb.michaelzhang.Configuration.changeProperty;
-import static com.ucsb.michaelzhang.Configuration.deleteProperty;
-import static com.ucsb.michaelzhang.Configuration.readConfig;
+import static com.ucsb.michaelzhang.Configuration.*;
 
 /**
  * Created by michaelzhang on 2/22/17.
+ *
+ * Distributed Ticket Selling System implement Raft
  */
 public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private static final int HEARTBEAT_INTERVAL = 5 * 1000;
-    private static final int ELECTION_INTERVAL = 10 * 1000;
+    private static final int ELECTION_INTERVAL = 15 * 1000;
     private int currentTerm;
     private String voteFor;
     private ArrayList<LogEntry> logEntries; //logEntries is 1-based, instead of zero-based
@@ -30,10 +29,13 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     private Timer heartbeat;
     private int port;
     private static int majority; //Current majority of network
-    private int lastLogIndex; //The index of last added log entry
+    private int lastLogIndex; //The index of last added log entry, 1-based
     private int lastLogTerm; // The term of last added log entry
     private int committedIndex;
     private int committedEntryCounter;
+    private String currentLeaderId;
+    private int currentLeaderPort;
+    private int configChangeCounter;
     private HashSet<String> dataCenters;
     private static Map<String, Integer> matchIndexMap = new HashMap<>();
     private static Map<String, Integer> nextIndexMap = new HashMap<>();
@@ -93,8 +95,11 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         this.lastLogTerm = 0;
         this.committedIndex = 0;
         this.committedEntryCounter = 1;
+        this.configChangeCounter = 1;
+        this.timer = new Timer();
         this.heartbeat = new Timer();
         this.dataCenters = new HashSet<>();
+
 
         // Only Config change log entry has the right to modify config files.
 
@@ -104,6 +109,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             for(int i = 1; i < totalNumOfDataCenter + 1; i++) {
                 dataCenters.add("D" + i);
             }
+            duplicateFile("log", "log_" + dataCenterId);
 
         } catch (IOException ex){
             ex.printStackTrace();
@@ -122,18 +128,73 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         System.out.println("Update majority to " + majority + " ...");
     }
 
+    public void handleConfigChange(boolean upOrDown,
+                                   HashMap<String, Integer> oldDataCenterMap,
+                                   HashMap<String, Integer> newDataCenterMap,
+                                   String clientId,
+                                   int clientPort) throws RemoteException{
+
+        System.out.println("Received a Configuration Change request from " + clientId);
+        if (currentRole != Role.Leader) {
+            try{
+                Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
+                DC_Comm dc  = (DC_Comm) registry.lookup(currentLeaderId);
+                dc.handleConfigChange(upOrDown, oldDataCenterMap, newDataCenterMap, clientId, clientPort);
+                System.out.println("Forward the Configuation change request to " + currentLeaderId);
+            } catch (NotBoundException | ConnectException ex) {
+                System.out.println("The Configuration change can't be forwarded to " + currentLeaderId);
+            }
+        }
+        else {
+            ConfigChange configChange = new ConfigChange(currentTerm, lastLogIndex + 1,
+                                                         upOrDown, oldDataCenterMap, newDataCenterMap);
+
+            //Add to logEntries
+            logEntries.add(configChange);
+            lastLogIndex++;
+            lastLogTerm = configChange.term;
+
+            //Commit the config change immediately
+
+            int nextCommittedIndex = committedIndex + 1;
+            commitLogEntry(nextCommittedIndex);
+
+            // Notify the client that the config change has been committed
+            try{
+                Registry registry = LocateRegistry.getRegistry("127.0.0.1", clientPort);
+                Client_Comm client = (Client_Comm) registry.lookup(clientId);
+
+                client.responseToChange();
+
+            } catch (NotBoundException | ConnectException ex) {
+                System.out.println(clientId + " can't be notified the committed new configuration change ... ");
+            }
+
+        }
+    }
+
     // Client DC Communication
     public void handleRequest(int numOfTicket,
                               String clientId,
                               int requestId,
-                              int clientPort,
-                              boolean isConfigChange) throws RemoteException {
+                              int clientPort) throws RemoteException {
 
-        LogEntry logEntry;
+        if (currentRole != Role.Leader) {
+            try {
+                Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
+                DC_Comm dc = (DC_Comm) registry.lookup(currentLeaderId);
+                dc.handleRequest(numOfTicket, clientId, requestId, clientPort);
+                System.out.println("Forward the client request to " + currentLeaderId);
 
-        if (!isConfigChange) {
 
-            try{
+            } catch (NotBoundException | ConnectException ex) {
+                System.out.println("The client request can't be forwarded to " + currentLeaderId);
+            }
+        } else {
+
+            LogEntry logEntry;
+
+            try {
                 int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
                 if (globalNumOfTicket < numOfTicket) {
                     Registry registry = LocateRegistry.getRegistry("127.0.0.1", clientPort);
@@ -146,7 +207,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 else {
                     logEntry = new LogEntry(currentTerm, lastLogIndex + 1, numOfTicket,
-                            clientId, requestId, clientPort, false);
+                            clientId, requestId, clientPort);
 
                     // To prevent duplicate request
 
@@ -164,12 +225,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             } catch (IOException | NotBoundException ex) {
                 ex.printStackTrace();
             }
-
-        } else { // The request is a configuration change
-            //TODO
         }
-
-
     }
 
 
@@ -177,8 +233,14 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     //First line shows the state of the state machine for the application.
     //Following lines show committed log of the datacenter connected to.
 
-    public void show() throws RemoteException{
 
+    public ArrayList<LogEntry> fetchCommittedLogEntries() throws RemoteException{
+        ArrayList<LogEntry> list = new ArrayList<>();
+        for (int i = 0; i < committedIndex; i++){
+            list.add(logEntries.get(i));
+        }
+
+        return list;
     }
 
 
@@ -278,6 +340,13 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     public void handleAppendEntries(AppendEntries appendEntries) throws RemoteException {
 
         System.out.println("Received AppendEntries from " + appendEntries.leadId);
+        if (committedIndex == 0){
+            try {
+                duplicateFile("Config", "Config_" + dataCenterId);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
 
         if (appendEntries.term > currentTerm) {
             updateTerm(appendEntries.term);
@@ -314,8 +383,13 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                     //Only Reset the Timer when replying true
                     resetTimer();
 
+                    // Update the leader's ID and Port
+
+                    currentLeaderId = appendEntries.leadId;
+                    currentLeaderPort = appendEntries.leaderPort;
+
                     if (appendEntries.commitIndex > committedIndex) {
-                        commitLogEntry(appendEntries.commitIndex);
+                        commitLogEntry(committedIndex + 1);
                     }
                     System.out.println("Handling HeartBeat ...");
                     System.out.println("lastLogIndex : " + lastLogIndex);
@@ -423,58 +497,143 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     }
 
-
     private void commitLogEntry(int nextCommittedIndex) {
+
+
+        // Commit Config Change immediately
+        if (logEntries.get(nextCommittedIndex - 1) instanceof ConfigChange) {
+
+            ConfigChange configChange = (ConfigChange) logEntries.get(nextCommittedIndex - 1);
+            try {
+                if (configChange.upOrDown) {
+                    StringBuilder oldConfig = new StringBuilder();
+                    for (Map.Entry<String, Integer> entry : configChange.oldDataCenterMap.entrySet()) {
+                        oldConfig.append(entry.getKey()).append(" ");
+                    }
+
+                    int totalNumOfDataCenter = configChange.newDataCenterMap.size();
+
+                    System.out.println("totalNumOfDataCenter : " + totalNumOfDataCenter);
+
+                    changeProperty("Config_" + dataCenterId, "TotalNumOfDataCenter", String.valueOf(totalNumOfDataCenter));
+
+                    StringBuilder newConfig = new StringBuilder();
+                    for (Map.Entry<String, Integer> entry : configChange.newDataCenterMap.entrySet()) {
+                        newConfig.append(entry.getKey()).append(" ");
+                        changeProperty("Config_" + dataCenterId, entry.getKey() + "_PORT", String.valueOf(entry.getValue()));
+                        dataCenters.add(entry.getKey());
+
+                        // Only update new comers' matchIndex and nextIndex
+
+                        if (currentRole == Role.Leader && !configChange.oldDataCenterMap.containsKey(entry.getKey())){
+                            matchIndexMap.put(entry.getKey(), 0);
+                            nextIndexMap.put(entry.getKey(), 1);
+
+                        }
+
+                    }
+
+                    changeProperty("log_" + dataCenterId, "Committed Configuration Change " + configChangeCounter,
+                            " From [" + oldConfig.toString() + "] To [" + newConfig.toString() + "] ");
+
+                    configChangeCounter++;
+
+                } else {
+                    StringBuilder oldConfig = new StringBuilder();
+                    for (String dataCenter : dataCenters) {
+                        oldConfig.append(dataCenter).append(" ");
+                    }
+
+
+                    StringBuilder newConfig = new StringBuilder();
+                    for (Map.Entry<String, Integer> entry : configChange.newDataCenterMap.entrySet()) {
+                        newConfig.append(entry.getKey()).append(" ");
+                    }
+
+                    int totalNumOfDataCenter = configChange.newDataCenterMap.size();
+
+                    changeProperty("Config_" + dataCenterId, "TotalNumOfDataCenter", String.valueOf(totalNumOfDataCenter));
+
+                    changeProperty("log_" + dataCenterId, "Committed Configuration Change ",
+                            " From [" + oldConfig.toString() + "] To [" + newConfig.toString() + "] ");
+                }
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            System.out.println("Increment committedIndex ..");
+            committedIndex++;
+            committedEntryCounter++;
+        }
 
         // Previous log entries can be possibly not committed due to no entry in current term has committed
         // As long as next Committed Index is about to be committed, all uncommitted log entries before it will be committed now.
 
-        for (int i = committedIndex + 1; i <= nextCommittedIndex; i++) {
+        else {
+            for (int i = committedIndex + 1; i <= nextCommittedIndex; i++) {
 
-            //Before accepting command, leader checks its log for entry with that id
-            LogEntry currentLogEntry = logEntries.get(i - 1);
-            boolean isCommitted = false;
+                //Before accepting command, leader checks its log for entry with that id
+                LogEntry currentLogEntry = logEntries.get(i - 1);
+                boolean isCommitted = false;
 
-            for (int j = 0; j < committedIndex; j++) {
-                LogEntry previousEntry = logEntries.get(j);
+                for (int j = 0; j < committedIndex; j++) {
+                    LogEntry previousEntry = logEntries.get(j);
 
-                if (previousEntry.equals(currentLogEntry)) {
+                    if (previousEntry.equals(currentLogEntry)) {
 
-                    isCommitted = true;
-                    break;
-                }
-            }
-
-            if (!isCommitted) {
-
-                // Print in the corresponding log
-                try {
-                    changeProperty("log_" + dataCenterId, "Committed Log Entry_" + committedEntryCounter,
-                            "RequestId " + currentLogEntry.requestId + " : " + currentLogEntry.clientId +
-                                    " successfully bought " + currentLogEntry.numOfTicket + " tickets.");
-
-                    System.out.println("Increment committedIndex ..");
-                    committedIndex++;
-                    committedEntryCounter++;
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                        isCommitted = true;
+                        break;
+                    }
                 }
 
-                // substract from TotalNumOfTicket
+                if (!isCommitted) {
 
-                try {
-                    int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
-                    changeProperty("Config_" + dataCenterId, "GlobalTicketNumber",
-                            String.valueOf(globalNumOfTicket - currentLogEntry.numOfTicket));
+                    // Print in the corresponding log
+                    try {
+                        changeProperty("log_" + dataCenterId, "Committed Log Entry_" + committedEntryCounter,
+                                "RequestId " + currentLogEntry.requestId + " : " + currentLogEntry.clientId +
+                                        " successfully bought " + currentLogEntry.numOfTicket + " tickets.");
 
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                        System.out.println("Increment committedIndex ..");
+                        committedIndex++;
+                        committedEntryCounter++;
 
-                // if leader, notify client with successful information
-                if (this.currentRole == Role.Leader) {
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
 
+                    // substract from TotalNumOfTicket
+
+                    try {
+                        int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
+                        changeProperty("Config_" + dataCenterId, "GlobalTicketNumber",
+                                String.valueOf(globalNumOfTicket - currentLogEntry.numOfTicket));
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
+                    // if leader, notify client with successful information
+                    if (this.currentRole == Role.Leader) {
+                        System.out.println("clientId : " + currentLogEntry.clientId);
+                        System.out.println("clientPort : " + currentLogEntry.clientPort);
+                        try {
+                            Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLogEntry.clientPort);
+                            Client_Comm client = (Client_Comm) registry.lookup(currentLogEntry.clientId);
+
+                            client.responseToRequest(true);
+
+                            System.out.println("");
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                } else { // This log entry has already committed, but failed to notify the client.
+
+                    // if leader, notify client with successful information
+                    System.out.println("Calling Client ...");
                     try {
                         Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLogEntry.clientPort);
                         Client_Comm client = (Client_Comm) registry.lookup(currentLogEntry.clientId);
@@ -486,22 +645,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                }
-            }
-            else { // This log entry has already committed, but failed to notify the client.
-
-                // if leader, notify client with successful information
-                System.out.println("Calling Client ...");
-                try {
-                    Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLogEntry.clientPort);
-                    Client_Comm client = (Client_Comm) registry.lookup(currentLogEntry.clientId);
-                    if (client != null) {
-                        client.responseToRequest(true);
-                    }
-                    System.out.println("");
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
                 }
             }
         }
@@ -632,6 +775,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     private void becomeLeader(){
         System.out.println("Step up as a leader ...");
         convertRole(Role.Leader);
+        currentLeaderId = dataCenterId;
+        currentLeaderPort = port;
+
         try{
             changeProperty("Leader", "CurrentLeader", dataCenterId);
         } catch (Exception ex){
@@ -675,9 +821,15 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             System.out.println("ERROR: Failed to register the server object.");
             e.printStackTrace();
         }
-
-        startTimer();
-
+        try{
+            int totalNumOfDataCenter =
+                    Integer.parseInt(readConfig("Config_" + dataCenterId, "TotalNumOfDataCenter"));
+            if (totalNumOfDataCenter != 0) {
+                startTimer();
+            }
+        } catch (IOException ex ){
+            System.out.println("Can't find Configuration File!");
+        }
     }
 
     private void broadcastAppendEntries() throws IOException{
@@ -787,13 +939,14 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         System.out.println("Following are entries in my Log : ");
         System.out.println(" ");
         for(LogEntry entry : logEntries) {
-            System.out.println("index: " + entry.index);
+            /*System.out.println("index: " + entry.index);
             System.out.println("term: " + entry.term);
             System.out.println("numOfTicket: " + entry.numOfTicket);
             System.out.println("clientId: " + entry.clientId);
             System.out.println("requestId: " + entry.requestId);
             System.out.println("clientPort: " + entry.clientPort);
-            System.out.println("isConfigChange: " + entry.isConfigChange);
+            */
+            System.out.println(entry.toString());
         }
     }
 

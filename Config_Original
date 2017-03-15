@@ -1,5 +1,2 @@
-TotalNumOfDataCenter=3
-GlobalTicketNumber=100
-D1_PORT=1101
-D2_PORT=1102
-D3_PORT=1103
+TotalNumOfDataCenter=0
+GlobalTicketNumber=0

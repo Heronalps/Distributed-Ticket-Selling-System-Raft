@@ -11,10 +11,6 @@ public interface Client_Comm extends Remote {
     // Client DC_Comm
     void responseToRequest(boolean success) throws RemoteException;
 
-    void responseToShow() throws RemoteException;
-    //First line shows the state of the state machine for the application.
-    //Following lines show committed log of the datacenter connected to.
-
 
     void responseToChange() throws RemoteException;
     //Configuration change command. Parameter list will be modified later.

@@ -1,28 +1,32 @@
 package com.ucsb.michaelzhang;
 
+import sun.rmi.runtime.Log;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.rmi.ConnectException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import static com.ucsb.michaelzhang.Configuration.*;
 
 /**
  * Created by michaelzhang on 2/22/17.
+ * The client side App of Raft
  */
 public class Client extends UnicastRemoteObject implements Client_Comm {
 
     private static final int TIMEOUT = 10 * 1000;
 
     // Leader ID of current leader to connect. Null if unknown.
-    private String currentLeaderId;
-    private int currentLeaderPort;
+    private String dataCenterId;
+    private int dataCenterPort;
     private Timer timer;
     private String clientId;
     private int port;
@@ -36,12 +40,10 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         this.port = port;
         this.requestId = 1;
         this.counter = 1;
+        this.dataCenterId = "D" + clientId.substring(1);
 
         try{
-            currentLeaderId = readConfig("Leader", "CurrentLeader");
-            if (currentLeaderId != null){
-                currentLeaderPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), currentLeaderId + "_PORT"));
-            }
+            dataCenterPort = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterId + "_PORT"));
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -73,31 +75,19 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         // Only if leader crashes, the new request from client would be effective to reach to new leader.
         // So, every time resend request, client needs to pull out possibly new Leader information.
 
-        try{
-            currentLeaderId = readConfig("Leader", "CurrentLeader");
-            if (currentLeaderId != null){
-                currentLeaderPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), currentLeaderId + "_PORT"));
-            }
+        try {
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", dataCenterPort);
+            DC_Comm dc = (DC_Comm) registry.lookup(dataCenterId);
+            System.out.println("Send request to Data Center " + dataCenterId + " to buy " + numOfTicket + " tickets for the "
+                    + counter + " time ...");
+            counter++;
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            dc.handleRequest(numOfTicket, clientId, requestId, this.port);
+
+        } catch (NotBoundException | RemoteException ex) {
+            System.out.println(dataCenterId + " is not responding to ticket request...");
         }
 
-        if (currentLeaderId != null) {
-            try {
-                Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
-                DC_Comm dc = (DC_Comm) registry.lookup(currentLeaderId);
-                System.out.println("Send request to Data Center " + currentLeaderId + " to buy " + numOfTicket + " tickets for the "
-                        + counter + " time ...");
-                counter++;
-                if (dc != null) {
-                    dc.handleRequest(numOfTicket, clientId, requestId, this.port, false);
-                }
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
     }
 
     private void initialize(){
@@ -127,7 +117,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
         cancelTimer();
         counter = 1;
-        System.out.println("Received a response from " + currentLeaderId + " ...");
+        System.out.println("Received a response from " + dataCenterId + " ...");
         if (success){
             System.out.println("Successfully bought " + numOfTicket + " tickets ... ");
 
@@ -142,19 +132,32 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         showMenu();
     }
 
-    public void responseToShow(){
+    private void sendConfigChange(boolean upOrDown,
+                                  HashMap<String, Integer> oldDataCenterMap, HashMap<String, Integer> newDataCenterMap) {
 
+        try {
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", dataCenterPort);
+            DC_Comm dc = (DC_Comm) registry.lookup(dataCenterId);
+            dc.handleConfigChange(upOrDown, oldDataCenterMap, newDataCenterMap, clientId, port);
+
+        } catch (NotBoundException | RemoteException ex) {
+            System.out.println(dataCenterId + " is not responding to Configuration change request...");
+        }
     }
 
-    public void responseToChange() {
-
+    public void responseToChange() throws RemoteException{
+        System.out.println("The new Configuration has been committed to data centers ... ");
+        showMenu();
     }
 
 
     private void buy(int numOfTicket) throws InterruptedException{
-
-        this.numOfTicket = numOfTicket;
-        startTimer();
+        if (numOfTicket > 0) {
+            this.numOfTicket = numOfTicket;
+            startTimer();
+        } else {
+            System.out.println("Please enter a valid ticket number again ...");
+        }
     }
 
     //First line shows the state of the state machine for the application.
@@ -164,41 +167,25 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
     private void show(){
 
-        // First line show the current leader's log file
-        try {
-            String thisLine;
-            String newLeaderId = readConfig("Config", "CurrentLeader");
-            String path = "/Users/michaelzhang/Dropbox/Distributed-Ticket-Selling-System-Raft/log_" + newLeaderId;
-            FileReader fileReader = new FileReader(path);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            while ((thisLine = bufferedReader.readLine()) != null) {
-                System.out.println(thisLine);
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        // First line show ticket left in the pool
 
         // Following lines show the connected data center's log file
         try {
-            String thisLine;
-            String path = "/Users/michaelzhang/Dropbox/Distributed-Ticket-Selling-System-Raft/log_" + currentLeaderId;
-            FileReader fileReader = new FileReader(path);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            while ((thisLine = bufferedReader.readLine()) != null) {
-                System.out.println(thisLine);
+            int globalNumOfTicket = Integer.parseInt(readConfig("Config_" + dataCenterId, "GlobalTicketNumber"));
+            System.out.println("There are " + globalNumOfTicket + " left in the pool ...");
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", dataCenterPort);
+            DC_Comm dc = (DC_Comm) registry.lookup(dataCenterId);
+            ArrayList<LogEntry> list = dc.fetchCommittedLogEntries();
+            for (int i = 1; i <= list.size(); i++) {
+                System.out.println( "[" + i + "] : "+ list.get(i).toString());
             }
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (NotBoundException | IOException ex) {
+            System.out.println("Can't fetch committed log entries from " + dataCenterId);
         }
 
     }
 
-    //Config change command. Parameter list will be modified later.
-    public void change() {
-
-    }
 
     private static void showMenu(){
         System.out.println(" ");
@@ -236,28 +223,53 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             while(true) {
 
                 String[] command = scan.nextLine().split(" ");
-                if (command[0].equals("buy")) {
+                switch (command[0]) {
+                    case "buy":
 
-                    client.buy(Integer.parseInt(command[1]));
-                }
+                        client.buy(Integer.parseInt(command[1]));
+                        break;
+                    case "show":
 
-                else if (command[0].equals("show")) {
+                        client.show();
+                        break;
+                    case "change":
 
-                    client.show();
-                }
+                        if (!command[1].equals("-up") && !command[1].equals("-down")) {
+                            System.out.println("Invalid argument! Please enter command again ... ");
+                        } else {
+                            int numOfDataCenter = (command.length - 2) / 2;
 
-                else if (command[0].equals("change")) {
+                            // dataCenterMap has all data center's information
 
-                    if (command[1].equals("-up")) {
+                            HashMap<String, Integer> oldDataCenterMap = new HashMap<>();
+                            HashMap<String, Integer> newDataCenterMap = new HashMap<>();
 
-                    }
+                            int totalNumOfCurrentDataCenter
+                                    = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), "TotalNumOfDataCenter"));
+                            for (int j = 1; j <= totalNumOfCurrentDataCenter; j++) {
+                                int dcPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), "D" + j + "_PORT"));
+                                oldDataCenterMap.put("D" + j, dcPort);
+                                newDataCenterMap.put("D" + j, dcPort);
+                            }
 
-                    else if (command[1].equals("-down")) {
+                            int i = 2;
+                            int counter = 1;
+                            while (counter <= numOfDataCenter) {
+                                newDataCenterMap.put(command[i], Integer.parseInt(command[i + 1]));
+                                i += 2;
+                                counter++;
+                            }
 
-                    }
+
+
+                            // true represents up, whereas false represents down
+
+                            boolean upOrDown = command[1].equals("-up");
+                            client.sendConfigChange(upOrDown, oldDataCenterMap, newDataCenterMap);
+                        }
+                        break;
                 }
             }
-
         } catch (Exception ex){
             ex.printStackTrace();
         }

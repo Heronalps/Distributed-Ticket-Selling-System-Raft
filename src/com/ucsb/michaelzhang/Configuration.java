@@ -1,6 +1,7 @@
 package com.ucsb.michaelzhang;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Properties;
 
 /**
@@ -68,5 +69,14 @@ public class Configuration {
         pw.close();
 
         tmpFile.renameTo(file);
+    }
+
+    public static void duplicateFile (String source, String destination) throws IOException {
+        File sourceFile = new File(source);
+        File destFile = new File(destination);
+        if (destFile.exists()){
+            destFile.delete();
+        }
+        Files.copy(sourceFile.toPath(), destFile.toPath());
     }
 }

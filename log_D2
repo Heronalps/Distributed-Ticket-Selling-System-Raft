@@ -1,2 +1,3 @@
-Committed Log Entry_1=RequestId 1 : C1 successfully bought 9 tickets.
-Committed Configuration Change 1= From [D1 D2 D3 ] To [D4 D5 D1 D2 D3 ] 
+Committed Log Entry_1=RequestId 1 : C1 successfully bought 7 tickets.
+Committed Configuration Change 1 = From [ D1 D2 D3 ] To [ D4 D5 D1 D2 D3 ] 
+Committed Configuration Change 2 = From [ D1 D2 D3 ] To [ D4 D5 D1 D2 D3 ] 

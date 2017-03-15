@@ -8,10 +8,10 @@ import java.rmi.RemoteException;
  */
 public interface Client_Comm extends Remote {
 
-    // Client DC_Comm
+    // DC's response to Client ticket request
     void responseToRequest(boolean success) throws RemoteException;
 
-
+    // DC's request to Client configuration change request
     void responseToChange() throws RemoteException;
-    //Configuration change command. Parameter list will be modified later.
+
 }

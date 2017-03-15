@@ -11,12 +11,14 @@ public class ConfigChange extends LogEntry {
     HashMap<String, Integer> oldDataCenterMap;
     HashMap<String, Integer> newDataCenterMap;
     boolean upOrDown; // true for up, false for down
+    boolean oldAndNew; // true for OLD + NEW, false for NEW
 
-    public ConfigChange(int term, int index, boolean upOrDown,
+    public ConfigChange(int term, int index, boolean upOrDown, boolean oldAndNew,
                         HashMap<String, Integer> oldDataCenterMap, HashMap<String, Integer> newDataCenterMap) {
         this.oldDataCenterMap = oldDataCenterMap;
         this.newDataCenterMap = newDataCenterMap;
         this.upOrDown = upOrDown;
+        this.oldAndNew = oldAndNew;
         this.term = term;
         this.index = index;
     }
@@ -33,6 +35,8 @@ public class ConfigChange extends LogEntry {
             newSB.append(entry.getKey() + " ");
         }
 
-        return "Configuration Change From [ " +  oldSB.toString() + " ] to [ " + newSB.toString() + " ] ...";
+        String version = oldAndNew ? "OLD + NEW" : "NEW";
+
+        return "Configuration Change " + version + " From [ " +  oldSB.toString() + " ] to [ " + newSB.toString() + " ] ...";
     }
 }

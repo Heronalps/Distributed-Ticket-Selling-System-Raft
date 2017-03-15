@@ -40,6 +40,7 @@ public interface DC_Comm extends Remote {
                      String followerID) throws RemoteException;
 
     void handleConfigChange(boolean upOrDown,
+                            boolean oldAndNew,
                             HashMap<String, Integer> oldDataCenterMap,
                             HashMap<String, Integer> newDataCenterMap,
                             String clientId,

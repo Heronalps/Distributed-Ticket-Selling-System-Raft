@@ -138,7 +138,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         try {
             Registry registry = LocateRegistry.getRegistry("127.0.0.1", dataCenterPort);
             DC_Comm dc = (DC_Comm) registry.lookup(dataCenterId);
-            dc.handleConfigChange(upOrDown, oldDataCenterMap, newDataCenterMap, clientId, port);
+            dc.handleConfigChange(upOrDown, true, oldDataCenterMap, newDataCenterMap, clientId, port);
 
         } catch (NotBoundException | RemoteException ex) {
             System.out.println(dataCenterId + " is not responding to Configuration change request...");

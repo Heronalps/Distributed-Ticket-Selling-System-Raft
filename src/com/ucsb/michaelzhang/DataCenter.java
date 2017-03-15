@@ -1,5 +1,6 @@
 package com.ucsb.michaelzhang;
 
+import java.io.File;
 import java.io.IOException;
 import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
@@ -129,6 +130,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     }
 
     public void handleConfigChange(boolean upOrDown,
+                                   boolean oldAndNew,
                                    HashMap<String, Integer> oldDataCenterMap,
                                    HashMap<String, Integer> newDataCenterMap,
                                    String clientId,
@@ -139,25 +141,47 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             try{
                 Registry registry = LocateRegistry.getRegistry("127.0.0.1", currentLeaderPort);
                 DC_Comm dc  = (DC_Comm) registry.lookup(currentLeaderId);
-                dc.handleConfigChange(upOrDown, oldDataCenterMap, newDataCenterMap, clientId, clientPort);
-                System.out.println("Forward the Configuation change request to " + currentLeaderId);
+                dc.handleConfigChange(upOrDown, oldAndNew, oldDataCenterMap, newDataCenterMap, clientId, clientPort);
+                System.out.println("Forward the Configuration change request to " + currentLeaderId);
             } catch (NotBoundException | ConnectException ex) {
                 System.out.println("The Configuration change can't be forwarded to " + currentLeaderId);
             }
         }
         else {
-            ConfigChange configChange = new ConfigChange(currentTerm, lastLogIndex + 1,
-                                                         upOrDown, oldDataCenterMap, newDataCenterMap);
+            ConfigChange oldPlusNewConfigChange = new ConfigChange(currentTerm, lastLogIndex + 1,
+                                                         upOrDown, true, oldDataCenterMap, newDataCenterMap);
+
+            //Construct a OLD + NEW configuration first, after it's committed in majority of Data Center,
+            // add NEW configuration to logEntries and commit it.
+
+
 
             //Add to logEntries
-            logEntries.add(configChange);
+            logEntries.add(oldPlusNewConfigChange);
             lastLogIndex++;
-            lastLogTerm = configChange.term;
+            lastLogTerm = oldPlusNewConfigChange.term;
 
             //Commit the config change immediately
 
             int nextCommittedIndex = committedIndex + 1;
             commitLogEntry(nextCommittedIndex);
+
+
+
+            ConfigChange newConfigChange = new ConfigChange(currentTerm, lastLogIndex + 1,
+                    upOrDown, false, oldDataCenterMap, newDataCenterMap);
+
+            //Add to logEntries
+            logEntries.add(newConfigChange);
+            lastLogIndex++;
+            lastLogTerm = newConfigChange.term;
+
+            //Commit the config change immediately
+
+            nextCommittedIndex = committedIndex + 1;
+            commitLogEntry(nextCommittedIndex);
+
+
 
             // Notify the client that the config change has been committed
             try{
@@ -352,6 +376,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             updateTerm(appendEntries.term);
             if (this.currentRole == Role.Candidate || this.currentRole == Role.Leader) {
                 becomeFollower();
+                currentLeaderId = appendEntries.leadId;
+                currentLeaderPort = appendEntries.leaderPort;
             }
 
             reply(true, 0, appendEntries.leaderPort, appendEntries.leadId);
@@ -504,6 +530,11 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         if (logEntries.get(nextCommittedIndex - 1) instanceof ConfigChange) {
 
             ConfigChange configChange = (ConfigChange) logEntries.get(nextCommittedIndex - 1);
+
+            if (configChange.oldAndNew) {
+                //File
+            }
+
             try {
                 if (configChange.upOrDown) {
                     StringBuilder oldConfig = new StringBuilder();
@@ -533,8 +564,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                     }
 
-                    changeProperty("log_" + dataCenterId, "Committed Configuration Change " + configChangeCounter,
-                            " From [" + oldConfig.toString() + "] To [" + newConfig.toString() + "] ");
+                    changeProperty("log_" + dataCenterId, "Committed Configuration Change " + configChangeCounter + " ",
+                            " From [ " + oldConfig.toString() + "] To [ " + newConfig.toString() + "] ");
 
                     configChangeCounter++;
 
@@ -565,6 +596,13 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             System.out.println("Increment committedIndex ..");
             committedIndex++;
             committedEntryCounter++;
+
+            // Reply to leader if it's a follower
+            if (currentRole != Role.Leader) {
+                System.out.println("Reply to leader " + currentLeaderId + " after committing ");
+                System.out.println("match Index : " + lastLogIndex);
+                reply(true, lastLogIndex, currentLeaderPort, currentLeaderId);
+            }
         }
 
         // Previous log entries can be possibly not committed due to no entry in current term has committed

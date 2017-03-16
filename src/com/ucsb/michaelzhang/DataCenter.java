@@ -412,14 +412,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 //Handling HeartBeat
 
-                System.out.println("PrevIndex : " + appendEntries.prevIndex);
-                System.out.println("lastLogIndex : " + lastLogIndex);
-                System.out.println("lastLogTerm : " + lastLogTerm);
-                System.out.println("appendEntries.prevTerm : " + appendEntries.prevTerm);
-                System.out.println("appendEntries.prevPrevTerm : " + appendEntries.prevPrevTerm);
-                System.out.println("logEntries.size() : " + logEntries.size());
-
-
                 if (lastLogIndex == appendEntries.prevIndex && lastLogTerm == appendEntries.prevTerm){
 
                     //Only Reset the Timer when replying true
@@ -532,7 +524,10 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
         System.out.println("numOfDataCenterAppend : " + numOfDataCenterAppend);
         System.out.println("majority : " + majority);
-        //System.out.println("last log entry's term : " + logEntries.get(nextCommittedIndex - 1).term);
+        /*if (nextCommittedIndex - 1 > 0) {
+            System.out.println("last log entry's term : " + logEntries.get(nextCommittedIndex - 2).term);
+        }
+        */
         System.out.println("currentTerm : " + currentTerm);
 
         return numOfDataCenterAppend >= majority
@@ -886,6 +881,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             if (totalNumOfDataCenter != 0) {
                 startTimer();
             }
+
         } catch (IOException ex ){
             System.out.println("Can't find Configuration File!");
         }
@@ -893,7 +889,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastAppendEntries() throws IOException{
         System.out.println("Broadcasting heartbeat to all data centers...");
-        for(String dataCenterID : dataCenters){
+        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId, "TotalNumOfDataCenter"));
+        for(int i = 1; i <= totalNumOfDataCenter; i++){
+            String dataCenterID = "D" + i;
             int port = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterID + "_PORT"));
             if (port != this.port) {
                 sendAppendEntries(Integer.parseInt(dataCenterID.substring(1)), port);
@@ -948,8 +946,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastRequestVote() throws IOException {
         System.out.println("Broadcasting RequestVote to all data centers...");
-
-        for(String dataCenterID : dataCenters){
+        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId, "TotalNumOfDataCenter"));
+        for(int i = 1; i <= totalNumOfDataCenter; i++){
+            String dataCenterID = "D" + i;
             int port = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterID + "_PORT"));
 
             if (port != this.port) {

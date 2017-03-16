@@ -34,6 +34,8 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
     private int numOfTicket;
     private int counter; // How many times does client send the same request. Reset to one after a request fulfilled.
     private HashMap<String, Integer> dataCenterMap;
+    private String currentLeader;
+    private int currentLeaderPort;
 
     private Client(String clientId, int port) throws RemoteException {
 
@@ -64,7 +66,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                sendClientRequest();
+                sendClientRequest(dataCenterId, dataCenterPort);
             }
         };
 
@@ -79,22 +81,29 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         timer.purge();
     }
 
-    private void sendClientRequest(){
+    private void sendClientRequest(String id, int port){
 
         // Only if leader crashes, the new request from client would be effective to reach to new leader.
         // So, every time resend request, client needs to pull out possibly new Leader information.
 
         try {
-            Registry registry = LocateRegistry.getRegistry("127.0.0.1", dataCenterPort);
-            DC_Comm dc = (DC_Comm) registry.lookup(dataCenterId);
-            System.out.println("Send request to Data Center " + dataCenterId + " to buy " + numOfTicket + " tickets for the "
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
+            DC_Comm dc = (DC_Comm) registry.lookup(id);
+            System.out.println("Send request to Data Center " + id + " to buy " + numOfTicket + " tickets for the "
                     + counter + " time ...");
             counter++;
 
             dc.handleRequest(numOfTicket, clientId, requestId, this.port);
 
         } catch (NotBoundException | RemoteException ex) {
-            System.out.println(dataCenterId + " is not responding to ticket request...");
+            System.out.println(id + " is not responding to ticket request ...");
+            try{
+                currentLeader = readConfig("Leader", "CurrentLeader");
+                currentLeaderPort = Integer.parseInt(readConfig("Config_" + dataCenterId, currentLeader + "_PORT"));
+                sendClientRequest(currentLeader, currentLeaderPort);
+            } catch (IOException ex2) {
+                System.out.println("Can't find Leader to forward request ...");
+            }
         }
 
     }
@@ -188,6 +197,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             for (int i = 0; i < list.size(); i++) {
                 System.out.println( "[" + i + "] : "+ list.get(i).toString());
             }
+            //System.out.println("dataCenterId : " + dataCenterId);
 
         } catch (NotBoundException | IOException ex) {
             System.out.println("Can't fetch committed log entries from " + dataCenterId);

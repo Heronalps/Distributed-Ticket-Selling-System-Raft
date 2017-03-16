@@ -1,2 +1,8 @@
+Committed Log Entry_1=RequestId 1 : C1 successfully bought 1 tickets.
 Committed Configuration Change 1 = From [ D1 D2 D3 ] To [ D4 D5 D1 D2 D3 ] 
 Committed Configuration Change 2 = From [ D1 D2 D3 ] To [ D4 D5 D1 D2 D3 ] 
+Committed Configuration Change 3 = From [D4 D5 D1 D2 D3 ] To [D4 D5 D1 D2 ] 
+Committed Configuration Change 4 = From [D4 D5 D1 D2 D3 ] To [D4 D5 D1 D2 ] 
+Committed Configuration Change 5 = From [ D4 D5 D1 D2 ] To [ D4 D5 D1 D2 D3 ] 
+Committed Configuration Change 6 = From [ D4 D5 D1 D2 ] To [ D4 D5 D1 D2 D3 ] 
+Committed Log Entry_8=RequestId 2 : C1 successfully bought 1 tickets.

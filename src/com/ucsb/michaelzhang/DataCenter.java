@@ -60,10 +60,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                                 int lastLogIndex,
                                 int lastLogTerm,
                                 int myPort) throws RemoteException;
-
      * public void handleVote(int term,
                          boolean voteGranted) throws RemoteException;
-
      * public void handleAppendEntries(int term,
                                     String leadId,
                                     int prevLogIndex, // Exactly the index of latest log entry
@@ -71,11 +69,9 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                                     LogEntry entry, //log entries to store, empty for heartbeat
                                     int commitIndex,
                                     int leaderPort) throws RemoteException;
-
      * public void handleReply(int term,
                             boolean success,
                             int matchIndex) throws RemoteException;
-
      * private void reply(boolean isSuccess, int matchIndex, int leaderPort, String leaderId);
      *
      * private void vote(boolean isVote, int myPort, String candidateId);
@@ -412,6 +408,14 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 //Handling HeartBeat
 
+                System.out.println("PrevIndex : " + appendEntries.prevIndex);
+                System.out.println("lastLogIndex : " + lastLogIndex);
+                System.out.println("lastLogTerm : " + lastLogTerm);
+                System.out.println("appendEntries.prevTerm : " + appendEntries.prevTerm);
+                System.out.println("appendEntries.prevPrevTerm : " + appendEntries.prevPrevTerm);
+                System.out.println("logEntries.size() : " + logEntries.size());
+
+
                 if (lastLogIndex == appendEntries.prevIndex && lastLogTerm == appendEntries.prevTerm){
 
                     //Only Reset the Timer when replying true
@@ -524,10 +528,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
         System.out.println("numOfDataCenterAppend : " + numOfDataCenterAppend);
         System.out.println("majority : " + majority);
-        /*if (nextCommittedIndex - 1 > 0) {
-            System.out.println("last log entry's term : " + logEntries.get(nextCommittedIndex - 2).term);
-        }
-        */
+        //System.out.println("last log entry's term : " + logEntries.get(nextCommittedIndex - 1).term);
         System.out.println("currentTerm : " + currentTerm);
 
         return numOfDataCenterAppend >= majority
@@ -881,7 +882,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
             if (totalNumOfDataCenter != 0) {
                 startTimer();
             }
-
         } catch (IOException ex ){
             System.out.println("Can't find Configuration File!");
         }
@@ -889,9 +889,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastAppendEntries() throws IOException{
         System.out.println("Broadcasting heartbeat to all data centers...");
-        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId, "TotalNumOfDataCenter"));
-        for(int i = 1; i <= totalNumOfDataCenter; i++){
-            String dataCenterID = "D" + i;
+        for(String dataCenterID : dataCenters){
             int port = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterID + "_PORT"));
             if (port != this.port) {
                 sendAppendEntries(Integer.parseInt(dataCenterID.substring(1)), port);
@@ -927,15 +925,15 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                     prevTerm, prevPrevTerm, entry, committedIndex, this.port);
             String receiver = "D" + id;
 
-                Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
-                DC_Comm dc = (DC_Comm) registry.lookup(receiver);
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
+            DC_Comm dc = (DC_Comm) registry.lookup(receiver);
 
-                dc.handleAppendEntries(appendEntries);
-                if (!dataCenters.contains(receiver)) {
-                    dataCenters.add(receiver);
-                    System.out.println("Total number of Data Center comes back to " + dataCenters.size());
-                    updateMajority();
-                }
+            dc.handleAppendEntries(appendEntries);
+            if (!dataCenters.contains(receiver)) {
+                dataCenters.add(receiver);
+                System.out.println("Total number of Data Center comes back to " + dataCenters.size());
+                updateMajority();
+            }
 
         } catch (NotBoundException | RemoteException ex) {
             System.out.println(peerId + " is not responding to HeartBeat ...");
@@ -946,9 +944,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void broadcastRequestVote() throws IOException {
         System.out.println("Broadcasting RequestVote to all data centers...");
-        int totalNumOfDataCenter = Integer.parseInt(readConfig("Config_" + dataCenterId, "TotalNumOfDataCenter"));
-        for(int i = 1; i <= totalNumOfDataCenter; i++){
-            String dataCenterID = "D" + i;
+
+        for(String dataCenterID : dataCenters){
             int port = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterID + "_PORT"));
 
             if (port != this.port) {

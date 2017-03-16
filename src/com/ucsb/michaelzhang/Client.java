@@ -1,12 +1,6 @@
 package com.ucsb.michaelzhang;
 
-import sun.rmi.runtime.Log;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -243,6 +237,10 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
                 String[] command = scan.nextLine().split(" ");
                 switch (command[0]) {
+                    default:
+                        System.out.println("Please enter valid command ...");
+                        break;
+
                     case "buy":
 
                         client.buy(Integer.parseInt(command[1]));

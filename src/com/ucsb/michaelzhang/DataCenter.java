@@ -412,6 +412,14 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 //Handling HeartBeat
 
+                System.out.println("PrevIndex : " + appendEntries.prevIndex);
+                System.out.println("lastLogIndex : " + lastLogIndex);
+                System.out.println("lastLogTerm : " + lastLogTerm);
+                System.out.println("appendEntries.prevTerm : " + appendEntries.prevTerm);
+                System.out.println("appendEntries.prevPrevTerm : " + appendEntries.prevPrevTerm);
+                System.out.println("logEntries.size() : " + logEntries.size());
+
+
                 if (lastLogIndex == appendEntries.prevIndex && lastLogTerm == appendEntries.prevTerm){
 
                     //Only Reset the Timer when replying true
@@ -435,12 +443,13 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 else if (appendEntries.prevIndex != 0
                         && (appendEntries.prevIndex == 1
-                        || (logEntries.size() >= prevLogIndex
+                        || (logEntries.size() >= prevLogIndex - 1
                         && logEntries.get(prevLogIndex - 1).term == appendEntries.prevPrevTerm))) {
 
                     resetTimer();
                     if (logEntries.size() > prevLogIndex) {
-                        logEntries.subList(prevLogIndex + 1, logEntries.size()).clear();
+                        logEntries.subList(prevLogIndex, logEntries.size()).clear();
+                        lastLogIndex = prevLogIndex;
                     }
 
                     logEntries.add(appendEntries.entry);

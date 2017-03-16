@@ -33,6 +33,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
     private int requestId; // To avoid execute the same order multiple times. Only if the request fulfilled, the requestId increments.
     private int numOfTicket;
     private int counter; // How many times does client send the same request. Reset to one after a request fulfilled.
+    private HashMap<String, Integer> dataCenterMap;
 
     private Client(String clientId, int port) throws RemoteException {
 
@@ -41,10 +42,18 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
         this.requestId = 1;
         this.counter = 1;
         this.dataCenterId = "D" + clientId.substring(1);
+        this.dataCenterMap = new HashMap<>();
 
         try{
             dataCenterPort = Integer.parseInt(readConfig("Config_" + dataCenterId, dataCenterId + "_PORT"));
 
+            int totalNumOfCurrentDataCenter
+                    = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), "TotalNumOfDataCenter"));
+            for (int j = 1; j <= totalNumOfCurrentDataCenter; j++) {
+                int dcPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), "D" + j + "_PORT"));
+                dataCenterMap.put("D" + j, dcPort);
+
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -176,7 +185,7 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
             Registry registry = LocateRegistry.getRegistry("127.0.0.1", dataCenterPort);
             DC_Comm dc = (DC_Comm) registry.lookup(dataCenterId);
             ArrayList<LogEntry> list = dc.fetchCommittedLogEntries();
-            for (int i = 1; i <= list.size(); i++) {
+            for (int i = 0; i < list.size(); i++) {
                 System.out.println( "[" + i + "] : "+ list.get(i).toString());
             }
 
@@ -241,31 +250,50 @@ public class Client extends UnicastRemoteObject implements Client_Comm {
 
                             // dataCenterMap has all data center's information
 
-                            HashMap<String, Integer> oldDataCenterMap = new HashMap<>();
                             HashMap<String, Integer> newDataCenterMap = new HashMap<>();
 
-                            int totalNumOfCurrentDataCenter
-                                    = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), "TotalNumOfDataCenter"));
-                            for (int j = 1; j <= totalNumOfCurrentDataCenter; j++) {
-                                int dcPort = Integer.parseInt(readConfig("Config_D" + clientId.substring(1), "D" + j + "_PORT"));
-                                oldDataCenterMap.put("D" + j, dcPort);
-                                newDataCenterMap.put("D" + j, dcPort);
+                            for (Map.Entry<String, Integer> entry : client.dataCenterMap.entrySet()) {
+                                newDataCenterMap.put(entry.getKey(), entry.getValue());
                             }
-
-                            int i = 2;
-                            int counter = 1;
-                            while (counter <= numOfDataCenter) {
-                                newDataCenterMap.put(command[i], Integer.parseInt(command[i + 1]));
-                                i += 2;
-                                counter++;
+                            if (command[1].equals("-up")) {
+                                int i = 2;
+                                int counter = 1;
+                                while (counter <= numOfDataCenter) {
+                                    newDataCenterMap.put(command[i], Integer.parseInt(command[i + 1]));
+                                    i += 2;
+                                    counter++;
+                                }
+                            } else {
+                                int i = 2;
+                                int counter = 1;
+                                while (counter <= numOfDataCenter) {
+                                    newDataCenterMap.remove(command[i]);
+                                    i += 2;
+                                    counter++;
+                                }
                             }
-
 
 
                             // true represents up, whereas false represents down
 
                             boolean upOrDown = command[1].equals("-up");
-                            client.sendConfigChange(upOrDown, oldDataCenterMap, newDataCenterMap);
+                            client.sendConfigChange(upOrDown, client.dataCenterMap, newDataCenterMap);
+
+                            // Update client dataCenterMap
+                            if (newDataCenterMap.size() > client.dataCenterMap.size()) {
+                                for (Map.Entry<String, Integer> entry : newDataCenterMap.entrySet()) {
+                                    if (!client.dataCenterMap.containsKey(entry.getKey())) {
+                                        client.dataCenterMap.put(entry.getKey(), entry.getValue());
+                                    }
+                                }
+                            } else if (newDataCenterMap.size() < client.dataCenterMap.size()) {
+                                for (Map.Entry<String, Integer> entry : client.dataCenterMap.entrySet()) {
+                                    if (!newDataCenterMap.containsKey(entry.getKey())) {
+                                        client.dataCenterMap.remove(entry.getKey());
+                                    }
+                                }
+                            }
+
                         }
                         break;
                 }

@@ -156,7 +156,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
         }
         else {
             ConfigChange oldPlusNewConfigChange = new ConfigChange(currentTerm, lastLogIndex + 1,
-                                                         upOrDown, true, oldDataCenterMap, newDataCenterMap);
+                    upOrDown, true, oldDataCenterMap, newDataCenterMap);
 
             //Construct a OLD + NEW configuration first, after it's committed in majority of Data Center,
             // add NEW configuration to logEntries and commit it.
@@ -284,10 +284,18 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     //Inter-DataCenter Communication
     public void handleRequestVote(String candidateId, //Sender's data center ID
-                                int term,
-                                int lastLogIndex,
-                                int lastLogTerm,
-                                int myPort) throws RemoteException{
+                                  int term,
+                                  int lastLogIndex,
+                                  int lastLogTerm,
+                                  int myPort) throws RemoteException{
+
+        if (!dataCenters.contains(candidateId)) {
+            if (term > currentTerm) {
+                updateTerm(term);
+            }
+            sendVote(false, myPort, candidateId);
+            return;
+        }
 
         System.out.println("Received RequestVote from " + candidateId);
         //sendVote()
@@ -531,15 +539,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
             ConfigChange configChange = (ConfigChange) logEntries.get(nextCommittedIndex - 1);
 
-            if (configChange.oldAndNew && currentRole == Role.Leader) {
-                //Create a tmp File to store the old configuration
-                try {
-                    duplicateFile("Config_" + dataCenterId, "Config_" + dataCenterId + "_OLD");
-                } catch (IOException ex) {
-                    System.out.println("Can't duplicate old configuration file ...");
-                }
-            }
-
             try {
                 if (configChange.upOrDown) {
                     StringBuilder oldConfig = new StringBuilder();
@@ -576,8 +575,8 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                 } else {
                     StringBuilder oldConfig = new StringBuilder();
-                    for (String dataCenter : dataCenters) {
-                        oldConfig.append(dataCenter).append(" ");
+                    for (Map.Entry<String, Integer> entry : configChange.oldDataCenterMap.entrySet()) {
+                        oldConfig.append(entry.getKey()).append(" ");
                     }
 
 
@@ -588,10 +587,18 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
                     int totalNumOfDataCenter = configChange.newDataCenterMap.size();
 
+                    for (String dataCenterID : dataCenters) {
+                        if (!configChange.newDataCenterMap.containsKey(dataCenterID)) {
+                            dataCenters.remove(dataCenterID);
+
+                        }
+                    }
+
                     changeProperty("Config_" + dataCenterId, "TotalNumOfDataCenter", String.valueOf(totalNumOfDataCenter));
 
-                    changeProperty("log_" + dataCenterId, "Committed Configuration Change ",
+                    changeProperty("log_" + dataCenterId, "Committed Configuration Change " + configChangeCounter + " ",
                             " From [" + oldConfig.toString() + "] To [" + newConfig.toString() + "] ");
+                    configChangeCounter++;
                 }
 
             } catch (IOException ex) {
@@ -887,44 +894,46 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     }
 
     private void sendAppendEntries(int id, int port) throws IOException {
-
         String peerId = "D" + id;
 
-        int nextIndex = nextIndexMap.get(peerId);
-
-        LogEntry entry = null;
-
-        int prevIndex = lastLogIndex;
-        int prevTerm = lastLogTerm;
-        int prevPrevTerm = lastLogTerm;
-
-        if (nextIndex <= lastLogIndex) {
-            entry = logEntries.get(nextIndex - 1);
-            prevIndex = nextIndex;
-            prevTerm = logEntries.get(nextIndex - 1).term;
-
-        }
-        if (nextIndex >= 2) {
-            prevPrevTerm = logEntries.get(nextIndex - 2).term;
-        }
-
-        AppendEntries appendEntries = new AppendEntries(currentTerm, dataCenterId, prevIndex,
-                                                        prevTerm, prevPrevTerm, entry, committedIndex, this.port);
-        String receiver = "D" + id;
         try{
-            Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
-            DC_Comm dc = (DC_Comm) registry.lookup(receiver);
+            int nextIndex = nextIndexMap.get(peerId);
 
-            dc.handleAppendEntries(appendEntries);
-            if (!dataCenters.contains(receiver)) {
-                dataCenters.add(receiver);
-                System.out.println("Total number of Data Center comes back to " + dataCenters.size());
-                updateMajority();
+
+            LogEntry entry = null;
+
+            int prevIndex = lastLogIndex;
+            int prevTerm = lastLogTerm;
+            int prevPrevTerm = lastLogTerm;
+
+            if (nextIndex <= lastLogIndex) {
+                entry = logEntries.get(nextIndex - 1);
+                prevIndex = nextIndex;
+                prevTerm = logEntries.get(nextIndex - 1).term;
+
+            }
+            if (nextIndex >= 2) {
+                prevPrevTerm = logEntries.get(nextIndex - 2).term;
             }
 
+            AppendEntries appendEntries = new AppendEntries(currentTerm, dataCenterId, prevIndex,
+                    prevTerm, prevPrevTerm, entry, committedIndex, this.port);
+            String receiver = "D" + id;
+
+                Registry registry = LocateRegistry.getRegistry("127.0.0.1", port);
+                DC_Comm dc = (DC_Comm) registry.lookup(receiver);
+
+                dc.handleAppendEntries(appendEntries);
+                if (!dataCenters.contains(receiver)) {
+                    dataCenters.add(receiver);
+                    System.out.println("Total number of Data Center comes back to " + dataCenters.size());
+                    updateMajority();
+                }
 
         } catch (NotBoundException | RemoteException ex) {
-            System.out.println(receiver + " is not responding to HeartBeat ...");
+            System.out.println(peerId + " is not responding to HeartBeat ...");
+        } catch (NullPointerException ex2) {
+            System.out.println("Can't find Peer Data Center's ID ...");
         }
     }
 

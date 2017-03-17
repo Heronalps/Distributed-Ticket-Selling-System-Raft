@@ -16,9 +16,6 @@ public interface DC_Comm extends Remote {
 
     ArrayList<LogEntry> fetchCommittedLogEntries() throws RemoteException;
 
-    void change() throws RemoteException;
-    //Configuration change command. Parameter list will be modified later.
-
 
     //Inter-DataCenter DC_Comm
     void handleRequestVote(String candidateId,

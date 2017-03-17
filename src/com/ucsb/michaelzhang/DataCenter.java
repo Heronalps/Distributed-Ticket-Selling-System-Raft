@@ -1,6 +1,5 @@
 package com.ucsb.michaelzhang;
 
-import java.io.File;
 import java.io.IOException;
 import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
@@ -47,40 +46,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     private static Map<String, Integer> tmpMatchIndexMap = new HashMap<>();
     private static Map<String, Integer> tmpNextIndexMap = new HashMap<>();
     private static Map<String, Boolean> tmpVoteMap = new HashMap<>();
-
-    /*
-     * public void handlerequest(int numOfTicket, String clientId, int requestId) throws RemoteException;
-     *
-     * public void show() throws RemoteException;
-     *
-     * public void change() throws RemoteException;
-     *
-     * public void handleRequestVote(String candidateId, //Sender's data center ID
-                                int term,
-                                int lastLogIndex,
-                                int lastLogTerm,
-                                int myPort) throws RemoteException;
-     * public void handleVote(int term,
-                         boolean voteGranted) throws RemoteException;
-     * public void handleAppendEntries(int term,
-                                    String leadId,
-                                    int prevLogIndex, // Exactly the index of latest log entry
-                                    int prevLogTerm,
-                                    LogEntry entry, //log entries to store, empty for heartbeat
-                                    int commitIndex,
-                                    int leaderPort) throws RemoteException;
-     * public void handleReply(int term,
-                            boolean success,
-                            int matchIndex) throws RemoteException;
-     * private void reply(boolean isSuccess, int matchIndex, int leaderPort, String leaderId);
-     *
-     * private void vote(boolean isVote, int myPort, String candidateId);
-     *
-     * private void broadcastAppendEntries() throws IOException;
-     *
-     * private void broadcastRequestVote() throws IOException;
-     *
-    */
 
 
     public enum Role{
@@ -271,12 +236,6 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
     }
 
 
-    //Config change command. Parameter list will be modified later.
-    public void change() throws RemoteException{
-
-    }
-
-
 
     //Inter-DataCenter Communication
     public void handleRequestVote(String candidateId, //Sender's data center ID
@@ -407,7 +366,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                 int prevLogIndex = appendEntries.prevIndex - 1;
 
                 //Handling HeartBeat
-
+/*
                 System.out.println("PrevIndex : " + appendEntries.prevIndex);
                 System.out.println("lastLogIndex : " + lastLogIndex);
                 System.out.println("lastLogTerm : " + lastLogTerm);
@@ -415,7 +374,7 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                 System.out.println("appendEntries.prevPrevTerm : " + appendEntries.prevPrevTerm);
                 System.out.println("logEntries.size() : " + logEntries.size());
 
-
+*/
                 if (lastLogIndex == appendEntries.prevIndex && lastLogTerm == appendEntries.prevTerm){
 
                     //Only Reset the Timer when replying true
@@ -525,12 +484,12 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
                 numOfDataCenterAppend++;
             }
         }
-
+/*
         System.out.println("numOfDataCenterAppend : " + numOfDataCenterAppend);
         System.out.println("majority : " + majority);
         //System.out.println("last log entry's term : " + logEntries.get(nextCommittedIndex - 1).term);
         System.out.println("currentTerm : " + currentTerm);
-
+*/
         return numOfDataCenterAppend >= majority
                 && logEntries.get(nextCommittedIndex - 1).term == currentTerm;
 
@@ -723,14 +682,15 @@ public class DataCenter extends UnicastRemoteObject implements DC_Comm {
 
     private void sendVote(boolean isVote, int myPort, String candidateId){
         try {
-            System.out.println("isVote: " + isVote);
+            /*System.out.println("isVote: " + isVote);
             System.out.println("myPort: " + myPort);
             System.out.println("candidateId: " + candidateId);
+            */
 
             Registry registry = LocateRegistry.getRegistry("127.0.0.1", myPort);
             DC_Comm comm = (DC_Comm) registry.lookup(candidateId);
             comm.handleVote(currentTerm, isVote, dataCenterId);
-            System.out.println("comm: " + comm.toString());
+            //System.out.println("comm: " + comm.toString());
 
             System.out.println("Reply with " + isVote + " vote to " + candidateId + " ...");
         } catch (NotBoundException | RemoteException ex) {
